@@ -43,9 +43,13 @@ O rádio precisa estar com o driver WinUSB, que o Windows 10/11 instala sozinho 
 
 ### Skimmer Server e RTTY Skimmer Server
 
-1. Copie `AirspyHfIntf.dll` (e opcionalmente `AirspyHfIntf.ini`) para a pasta do programa (`SkimSrv` ou `RttySkimServ`). Não precisa renomear: o programa carrega as DLLs que encontra ali. O RTTY Skimmer Server usa a mesma interface de DLL, mas não foi testado com esta DLL.
+1. Copie `AirspyHfIntf.dll` (e opcionalmente `AirspyHfIntf.ini`) para a pasta do programa (`SkimSrv` ou `RttySkimServ`). O programa carrega as DLLs que encontra ali; veja [Ordem de carregamento das DLLs](#ordem-de-carregamento-das-dlls) se ele abrir outra. O RTTY Skimmer Server usa a mesma interface de DLL, mas não foi testado com esta DLL.
 2. O rádio aparece na lista como **Airspy HF+**.
 3. Apenas 1 receptor, ou seja, uma banda por rádio.
+
+### Ordem de carregamento das DLLs
+
+O CW Skimmer, o Skimmer Server e o RTTY Skimmer Server parecem carregar as DLLs de interface em ordem alfabética e usar a primeira. Se houver mais de uma na pasta (por exemplo `AirspyHfIntf.dll` e `RtlSdrIntf.dll`, ou as DLLs originais de outros rádios), pode ser preciso renomear a que você quer usar para que ela venha primeiro, por exemplo `0RtlSdrIntf.dll`. Mantenha o nome terminado em `Intf.dll`. A DLL procura um `.ini` com o nome dela (`0RtlSdrIntf.ini`) e usa o padrão (`RtlSdrIntf.ini`) quando esse arquivo não existe.
 
 ### CW Skimmer
 

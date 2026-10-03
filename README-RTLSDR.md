@@ -16,6 +16,7 @@ Interface DLL that lets you use an **RTL-SDR** dongle, including the **RTL-SDR B
 
 - **Skimmer Server / RTTY Skimmer Server:** copy `RtlSdrIntf.dll` (and optionally `RtlSdrIntf.ini`) to the program folder. The radio shows up in the list as **RTL-SDR**. One receiver only, that is, one band.
 - **CW Skimmer:** copy the DLL under the name `Qs1rIntf.dll` and choose **QS1R** under *Settings > Radio*. The `.ini` is still named `RtlSdrIntf.ini`. This procedure is unconfirmed, as explained in the main README.
+- **More than one DLL in the folder:** the programs appear to load the DLLs in alphabetical order and use the first one, so you may need to rename this one to come first, for example `0RtlSdrIntf.dll` (keep the name ending in `Intf.dll`). See [DLL load order](README.md#dll-load-order).
 
 ## HF reception
 

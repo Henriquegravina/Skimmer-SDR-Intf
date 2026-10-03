@@ -17,6 +17,15 @@ Skimmer Server
 Copie como AirspyHfIntf.dll para a pasta do SkimSrv. O radio aparece na
 lista como "Airspy HF+". Apenas 1 receptor (1 banda).
 
+Ordem de carregamento
+---------------------
+O CW Skimmer, o Skimmer Server e o RTTY Skimmer Server parecem carregar
+as DLLs em ordem alfabetica e usar a primeira. Com mais de uma DLL na
+pasta, pode ser preciso renomear a que voce quer usar para que ela venha
+primeiro, por exemplo 0RtlSdrIntf.dll (o nome deve terminar em Intf.dll).
+A DLL usa o .ini com o nome dela (0RtlSdrIntf.ini) ou, se nao existir,
+o padrao (RtlSdrIntf.ini).
+
 CW Skimmer
 ----------
 Copie como Qs1rIntf.dll para a pasta do CW Skimmer (guarde a original, se
