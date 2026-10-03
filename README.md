@@ -2,14 +2,14 @@
 
 *English | [Português (Brasil)](README.pt-BR.md)*
 
-Interface DLLs that let you use other SDR receivers with **CW Skimmer**, **Skimmer Server** and **RTTY Skimmer Server** (Afreet Software, VE3NEA):
+Interface DLLs that let you use other SDR receivers with **Skimmer Server** and **RTTY Skimmer Server** (Afreet Software, VE3NEA). **CW Skimmer** is not supported; see [CW Skimmer](#cw-skimmer).
 
 | DLL | Radio | Documentation |
 |---|---|---|
 | `AirspyHfIntf.dll` | Airspy HF+ / HF+ Discovery | This page |
 | `RtlSdrIntf.dll` | RTL-SDR, including the RTL-SDR Blog V3 and V4 | [README-RTLSDR.md](README-RTLSDR.md) |
 
-**Just want to use it?** The compiled files are in the [`bin`](bin) folder. Copy the DLL for your radio to the Skimmer folder; nothing else needs to be installed.
+**Just want to use it?** The compiled files are in the [`bin`](bin) folder. Copy the DLL for your radio, or both, to the Skimmer Server or RTTY Skimmer Server folder; nothing else needs to be installed.
 
 The rest of this page is about the Airspy DLL.
 
@@ -43,21 +43,17 @@ The radio must be using the WinUSB driver, which Windows 10/11 installs automati
 
 ### Skimmer Server and RTTY Skimmer Server
 
-1. Copy `AirspyHfIntf.dll` (and optionally `AirspyHfIntf.ini`) to the program folder (`SkimSrv` or `RttySkimServ`). The program loads the DLLs it finds there; see [DLL load order](#dll-load-order) if it opens a different one. RTTY Skimmer Server uses the same DLL interface, but has not been tested with this DLL.
+1. Copy `AirspyHfIntf.dll` (and optionally `AirspyHfIntf.ini`) to the program folder (`SkimSrv` or `RttySkimServ`). No renaming is needed: the program loads the DLLs it finds there. See [Both DLLs in the same folder](#both-dlls-in-the-same-folder).
 2. The radio shows up in the list as **Airspy HF+**.
 3. One receiver only, that is, one band per radio.
 
-### DLL load order
+### Both DLLs in the same folder
 
-CW Skimmer, Skimmer Server and RTTY Skimmer Server appear to load the interface DLLs in alphabetical order and use the first one. If the folder holds more than one (for example `AirspyHfIntf.dll` and `RtlSdrIntf.dll`, or the original DLLs of other radios), you may need to rename the one you want so that it comes first, for example `0RtlSdrIntf.dll`. Keep the name ending in `Intf.dll`. The DLL looks for an `.ini` with its own name (`0RtlSdrIntf.ini`) and falls back to the default one (`RtlSdrIntf.ini`) when that file does not exist.
+Skimmer Server and RTTY Skimmer Server load all the interface DLLs in the folder at the same time. With `AirspyHfIntf.dll` and `RtlSdrIntf.dll` both there, **Airspy HF+** and **RTL-SDR** both show up in the radio list, and you pick whichever one has its hardware connected. No renaming is needed.
 
 ### CW Skimmer
 
-1. Copy the same DLL to the CW Skimmer folder under the name **`Qs1rIntf.dll`** (keep the original one, if present).
-2. Under *Settings > Radio*, choose **QS1R**.
-3. The `.ini` is still named `AirspyHfIntf.ini`.
-
-This procedure is unconfirmed: there are signs that CW Skimmer 2.1 talks to the QS1R directly over USB ("Unable to load libusb0.dll" error) and does not load this DLL. Skimmer Server loads the DLL normally.
+CW Skimmer cannot load these DLLs, and renaming them does not help (for example to `Qs1rIntf.dll` with **QS1R** chosen under *Settings > Radio*: CW Skimmer 2.1 talks to the QS1R directly over USB and does not load the DLL). Use Skimmer Server or RTTY Skimmer Server instead.
 
 The radio can only be opened by one program at a time (close SDR# first).
 

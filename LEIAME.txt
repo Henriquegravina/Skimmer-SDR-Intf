@@ -1,38 +1,33 @@
-AirspyHfIntf - Airspy HF+ / HF+ Discovery no CW Skimmer e no Skimmer Server
-==========================================================================
+AirspyHfIntf - Airspy HF+ / HF+ Discovery no Skimmer Server e no RTTY Skimmer Server
+=====================================================================================
 
 Documentacao completa: README.md (ingles) e README.pt-BR.md (portugues).
 RTL-SDR (RtlSdrIntf.dll): veja README-RTLSDR.pt-BR.md.
 
 O que precisa estar na pasta do programa
 ----------------------------------------
-1. A DLL deste pacote (veja o nome abaixo, conforme o programa).
+1. AirspyHfIntf.dll (sem renomear).
 2. AirspyHfIntf.ini (opcional; sem ele valem os padroes).
 
 Nao e preciso airspyhf.dll nem libusb: estao embutidas na DLL (32 bits).
 O radio usa o driver WinUSB, instalado automaticamente no Windows 10/11.
 
-Skimmer Server
---------------
-Copie como AirspyHfIntf.dll para a pasta do SkimSrv. O radio aparece na
-lista como "Airspy HF+". Apenas 1 receptor (1 banda).
+Skimmer Server e RTTY Skimmer Server
+------------------------------------
+Copie AirspyHfIntf.dll para a pasta do SkimSrv ou do RttySkimServ. O radio
+aparece na lista como "Airspy HF+". Apenas 1 receptor (1 banda).
 
-Ordem de carregamento
----------------------
-O CW Skimmer, o Skimmer Server e o RTTY Skimmer Server parecem carregar
-as DLLs em ordem alfabetica e usar a primeira. Com mais de uma DLL na
-pasta, pode ser preciso renomear a que voce quer usar para que ela venha
-primeiro, por exemplo 0RtlSdrIntf.dll (o nome deve terminar em Intf.dll).
-A DLL usa o .ini com o nome dela (0RtlSdrIntf.ini) ou, se nao existir,
-o padrao (RtlSdrIntf.ini).
+As duas DLLs juntas
+-------------------
+O Skimmer Server e o RTTY Skimmer Server carregam todas as DLLs da pasta
+ao mesmo tempo. Com AirspyHfIntf.dll e RtlSdrIntf.dll na pasta, os dois
+radios aparecem na lista e voce escolhe o que tiver o hardware conectado.
+Nao precisa renomear nada.
 
 CW Skimmer
 ----------
-Copie como Qs1rIntf.dll para a pasta do CW Skimmer (guarde a original, se
-existir) e escolha "QS1R" como radio em Settings > Radio.
-ATENCAO: nao confirmado; ha indicios de que o CW Skimmer 2.1 acessa o QS1R
-direto por USB e nao carrega esta DLL. No Skimmer Server funciona.
-O .ini continua se chamando AirspyHfIntf.ini.
+Nao suportado. O CW Skimmer nao consegue carregar estas DLLs, e renomear
+(por exemplo para Qs1rIntf.dll) nao resolve.
 
 Taxas
 -----

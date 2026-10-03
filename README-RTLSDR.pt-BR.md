@@ -2,7 +2,7 @@
 
 *[English](README-RTLSDR.md) | Português (Brasil)* · [Voltar ao README principal](README.pt-BR.md)
 
-DLL de interface que permite usar um dongle **RTL-SDR**, incluindo os **RTL-SDR Blog V3 e V4**, no **CW Skimmer**, no **Skimmer Server** e no **RTTY Skimmer Server**.
+DLL de interface que permite usar um dongle **RTL-SDR**, incluindo os **RTL-SDR Blog V3 e V4**, no **Skimmer Server** e no **RTTY Skimmer Server**. O CW Skimmer não é suportado.
 
 > **Estado:** testada apenas com um driver simulado. Ainda não foi experimentada com um dongle real.
 
@@ -15,8 +15,8 @@ DLL de interface que permite usar um dongle **RTL-SDR**, incluindo os **RTL-SDR 
 ## Instalação
 
 - **Skimmer Server / RTTY Skimmer Server:** copie `RtlSdrIntf.dll` (e opcionalmente `RtlSdrIntf.ini`) para a pasta do programa. O rádio aparece na lista como **RTL-SDR**. Apenas 1 receptor, ou seja, uma banda.
-- **CW Skimmer:** copie a DLL com o nome `Qs1rIntf.dll` e escolha **QS1R** em *Settings > Radio*. O `.ini` continua se chamando `RtlSdrIntf.ini`. Esse procedimento não foi confirmado, como explicado no README principal.
-- **Mais de uma DLL na pasta:** os programas parecem carregar as DLLs em ordem alfabética e usar a primeira, então pode ser preciso renomear esta para que venha primeiro, por exemplo `0RtlSdrIntf.dll` (mantenha o nome terminado em `Intf.dll`). Veja [Ordem de carregamento das DLLs](README.pt-BR.md#ordem-de-carregamento-das-dlls).
+- **Junto com a DLL do Airspy:** os programas carregam todas as DLLs da pasta ao mesmo tempo, então com a `AirspyHfIntf.dll` lá também os dois rádios aparecem na lista e você escolhe o que estiver com o hardware conectado. Não precisa renomear nada. Veja [As duas DLLs na mesma pasta](README.pt-BR.md#as-duas-dlls-na-mesma-pasta).
+- **CW Skimmer:** não é suportado. Ele não consegue carregar a DLL, e renomear não resolve, como explicado no [README principal](README.pt-BR.md#cw-skimmer).
 
 ## Recepção de HF
 
