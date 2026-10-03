@@ -60,6 +60,8 @@ Os ajustes ficam no `RtlSdrIntf.ini`, ao lado da DLL. A janela de configuração
 
 O `RtlSdrIntfConfig.exe` abre a mesma janela sem o Skimmer.
 
+![Janela de configuração do RTL-SDR](docs/rtl_sdr_window.jpg)
+
 | Chave | Padrão | Função |
 |---|---|---|
 | `DeviceIndex` | -1 | Qual dongle abrir; -1 = o primeiro encontrado |

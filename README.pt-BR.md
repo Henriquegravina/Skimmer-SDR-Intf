@@ -63,6 +63,8 @@ Os ajustes ficam no `AirspyHfIntf.ini`, ao lado da DLL. A janela de configuraç�
 
 ### Janela de configuração
 
+![Janela de configuração do Airspy HF+](docs/airSpy_window.jpg)
+
 A janela faz parte da DLL e abre sozinha quando o Skimmer inicia o rádio. Ela roda em thread própria, então o Skimmer continua funcionando com ela aberta. Desmarque **Mostrar esta janela quando o rádio iniciar** (ou use `ShowWindow=0`) se não quiser que ela apareça.
 
 - **Número de série:** lista os rádios encontrados, para escolher um quando houver mais de um. Também dá para digitar o número de série.
@@ -165,7 +167,7 @@ Os arquivos compilados contêm a libusb, a libairspyhf e o driver da RTL-SDR Blo
 
 ## Créditos
 
-Plugin por PY3OW e PY3CRX.
+Plugin por PY3OW e PY2PLL+PY3CRX.
 
 ## Referências
 

@@ -44,7 +44,7 @@ BEGIN
 
     AUTOCHECKBOX    "Show this window when the radio starts", IDC_SHOW, 7, 286, 236, 10
     LTEXT           "", IDC_INI, 7, 299, 236, 9, SS_PATHELLIPSIS
-    LTEXT           "Plugin by: PY3OW and PY3CRX", IDC_STATIC, 7, 310, 236, 9
+    LTEXT           "Plugin by: PY3OW and PY2PLL+PY3CRX", IDC_STATIC, 7, 310, 236, 9
     DEFPUSHBUTTON   "OK", IDOK, 85, 326, 50, 14
     PUSHBUTTON      "Cancel", IDCANCEL, 139, 326, 50, 14
     PUSHBUTTON      "Apply", IDC_APPLY, 193, 326, 50, 14

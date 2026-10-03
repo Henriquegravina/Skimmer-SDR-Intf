@@ -63,6 +63,8 @@ Settings live in `AirspyHfIntf.ini`, next to the DLL. The settings window writes
 
 ### Settings window
 
+![Airspy HF+ settings window (Portuguese)](docs/airSpy_window.jpg)
+
 The window is built into the DLL and opens by itself when the Skimmer starts the radio. It runs in its own thread, so the Skimmer keeps working while it is open. Untick **Show this window when the radio starts** (or set `ShowWindow=0`) if you do not want it to appear.
 
 - **Serial number:** lists the radios found, so you can pick one when you have more than one. You can also type the serial number.
@@ -165,7 +167,7 @@ The compiled files contain libusb, libairspyhf and the RTL-SDR Blog driver. Thei
 
 ## Credits
 
-Plugin by PY3OW and PY3CRX.
+Plugin by PY3OW and PY2PLL+PY3CRX.
 
 ## References
 

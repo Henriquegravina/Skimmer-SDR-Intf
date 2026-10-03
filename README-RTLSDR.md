@@ -60,6 +60,8 @@ Settings live in `RtlSdrIntf.ini`, next to the DLL. The settings window is built
 
 `RtlSdrIntfConfig.exe` opens the same window without the Skimmer.
 
+![RTL-SDR settings window (Portuguese)](docs/rtl_sdr_window.jpg)
+
 | Key | Default | Purpose |
 |---|---|---|
 | `DeviceIndex` | -1 | Which dongle to open; -1 = the first one found |
