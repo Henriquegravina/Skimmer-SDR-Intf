@@ -1,0 +1,35 @@
+#define IDD_MAIN      100
+#define IDC_DEVICE    1001
+#define IDC_REFRESH   1002
+#define IDC_HFMODE    1003
+#define IDC_TAGC      1004
+#define IDC_TGAIN     1005
+#define IDC_RAGC      1006
+#define IDC_BIAS      1007
+#define IDC_PPM       1008
+#define IDC_GAIN      1009
+#define IDC_GAINSPIN  1010
+#define IDC_OFFSET    1011
+#define IDC_INVQ      1012
+#define IDC_LOG       1013
+#define IDC_SHOW      1014
+#define IDC_INI       1015
+#define IDC_APPLY     1016
+#define IDC_NOTE      1017
+#define IDC_TBW       1018
+#define IDC_RATE      1019
+#define IDC_RATEINFO  1020
+#define IDC_L_DEVICE  1101
+#define IDC_L_HFMODE  1102
+#define IDC_L_TGAIN   1103
+#define IDC_L_PPM     1104
+#define IDC_L_GAIN    1105
+#define IDC_L_OFFSET  1106
+#define IDC_G_RADIO   1107
+#define IDC_G_FRONT   1108
+#define IDC_G_DSP     1109
+#define IDC_L_TBW     1110
+#define IDC_L_RATE    1111
+#ifndef IDC_STATIC
+#define IDC_STATIC    (-1)
+#endif

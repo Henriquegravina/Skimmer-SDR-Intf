@@ -1,0 +1,53 @@
+AirspyHfIntf - Airspy HF+ / HF+ Discovery no CW Skimmer e no Skimmer Server
+==========================================================================
+
+Documentacao completa: README.md (ingles) e README.pt-BR.md (portugues).
+RTL-SDR (RtlSdrIntf.dll): veja README-RTLSDR.pt-BR.md.
+
+O que precisa estar na pasta do programa
+----------------------------------------
+1. A DLL deste pacote (veja o nome abaixo, conforme o programa).
+2. AirspyHfIntf.ini (opcional; sem ele valem os padroes).
+
+Nao e preciso airspyhf.dll nem libusb: estao embutidas na DLL (32 bits).
+O radio usa o driver WinUSB, instalado automaticamente no Windows 10/11.
+
+Skimmer Server
+--------------
+Copie como AirspyHfIntf.dll para a pasta do SkimSrv. O radio aparece na
+lista como "Airspy HF+". Apenas 1 receptor (1 banda).
+
+CW Skimmer
+----------
+Copie como Qs1rIntf.dll para a pasta do CW Skimmer (guarde a original, se
+existir) e escolha "QS1R" como radio em Settings > Radio.
+ATENCAO: nao confirmado; ha indicios de que o CW Skimmer 2.1 acessa o QS1R
+direto por USB e nao carrega esta DLL. No Skimmer Server funciona.
+O .ini continua se chamando AirspyHfIntf.ini.
+
+Taxas
+-----
+Skimmer 48 / 96 / 192 kHz. A DLL usa a menor taxa do radio que seja
+multiplo 2^n da pedida (192 kHz nativo no HF+ Discovery) e decima com
+filtros FIR meia-banda de 63 taps.
+
+Ajustes (AirspyHfIntf.ini)
+--------------------------
+A janela de configuracao abre sozinha quando o Skimmer inicia o radio e
+grava no .ini; tambem da para editar o arquivo a mao. As mudancas valem com
+o Skimmer recebendo; so o numero de serie espera o radio ser reiniciado.
+O AirspyHfIntfConfig.exe (opcional) abre a mesma janela sem o Skimmer.
+
+HfAgc, HfAgcThreshold, HfAtt, HfLna  controles do front-end do radio
+GainDb        ganho digital, se o waterfall ficar fraco ou saturado
+InvertQ       ponha 1 se o espectro aparecer espelhado
+FreqOffsetHz  para transverter/upconverter
+Serial        numero de serie (hex) quando houver mais de um radio
+ShowWindow    0 para a janela nao abrir ao iniciar o radio
+Log           1 grava AirspyHfIntf.log
+
+Compilar
+--------
+sh build.sh   (MinGW de 32 bits; baixa libairspyhf e libusb)
+
+O radio so pode ser aberto por um programa de cada vez (feche o SDR#).

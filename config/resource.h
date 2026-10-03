@@ -1,0 +1,27 @@
+#define IDD_MAIN      100
+#define IDC_RADIO     1001
+#define IDC_REFRESH   1002
+#define IDC_AGC       1003
+#define IDC_THR       1004
+#define IDC_ATT       1005
+#define IDC_LNA       1006
+#define IDC_GAIN      1007
+#define IDC_GAINSPIN  1008
+#define IDC_INVQ      1009
+#define IDC_OFFSET    1010
+#define IDC_LOG       1011
+#define IDC_INI       1012
+#define IDC_APPLY     1013
+#define IDC_SHOW      1014
+#define IDC_L_RADIO   1101
+#define IDC_L_THR     1102
+#define IDC_L_ATT     1103
+#define IDC_L_GAIN    1104
+#define IDC_L_OFFSET  1105
+#define IDC_G_RADIO   1106
+#define IDC_G_FRONT   1107
+#define IDC_G_DSP     1108
+#define IDC_NOTE      1109
+#ifndef IDC_STATIC
+#define IDC_STATIC    (-1)
+#endif

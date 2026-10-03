@@ -1,0 +1,43 @@
+#include <windows.h>
+#include <commctrl.h>
+#include "resource.h"
+
+#ifdef WITH_MANIFEST
+1 RT_MANIFEST "AirspyHfIntfConfig.manifest"
+#endif
+
+IDD_MAIN DIALOGEX 0, 0, 250, 264
+STYLE DS_SETFONT | DS_MODALFRAME | DS_CENTER | WS_POPUP | WS_CAPTION | WS_SYSMENU | WS_MINIMIZEBOX
+CAPTION "Airspy HF+ for CW Skimmer - Settings"
+FONT 9, "Segoe UI"
+BEGIN
+    GROUPBOX        "Radio", IDC_G_RADIO, 7, 5, 236, 55
+    LTEXT           "Serial number:", IDC_L_RADIO, 15, 20, 62, 9
+    COMBOBOX        IDC_RADIO, 80, 18, 108, 80, CBS_DROPDOWN | CBS_AUTOHSCROLL | WS_VSCROLL | WS_TABSTOP
+    PUSHBUTTON      "Refresh", IDC_REFRESH, 193, 17, 42, 14
+    LTEXT           "", IDC_NOTE, 15, 36, 222, 17
+
+    GROUPBOX        "Front end", IDC_G_FRONT, 7, 64, 236, 66
+    AUTOCHECKBOX    "HF AGC", IDC_AGC, 15, 78, 100, 10
+    LTEXT           "AGC threshold:", IDC_L_THR, 15, 95, 62, 9
+    COMBOBOX        IDC_THR, 80, 93, 60, 50, CBS_DROPDOWNLIST | WS_TABSTOP
+    LTEXT           "Attenuator:", IDC_L_ATT, 150, 95, 40, 9
+    COMBOBOX        IDC_ATT, 193, 93, 42, 120, CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
+    AUTOCHECKBOX    "Preamplifier (LNA)", IDC_LNA, 15, 113, 150, 10
+
+    GROUPBOX        "Output to the Skimmer", IDC_G_DSP, 7, 134, 236, 64
+    LTEXT           "Digital gain (dB):", IDC_L_GAIN, 15, 149, 62, 9
+    EDITTEXT        IDC_GAIN, 80, 147, 40, 13, ES_AUTOHSCROLL
+    CONTROL         "", IDC_GAINSPIN, UPDOWN_CLASS, UDS_SETBUDDYINT | UDS_ALIGNRIGHT | UDS_AUTOBUDDY | UDS_ARROWKEYS | UDS_NOTHOUSANDS, 0, 9, 10, 13
+    LTEXT           "Frequency offset (Hz):", IDC_L_OFFSET, 130, 149, 62, 9
+    EDITTEXT        IDC_OFFSET, 193, 147, 42, 13, ES_AUTOHSCROLL
+    AUTOCHECKBOX    "Invert Q (mirrored spectrum)", IDC_INVQ, 15, 166, 220, 10
+    AUTOCHECKBOX    "Write log file", IDC_LOG, 15, 181, 220, 10
+
+    AUTOCHECKBOX    "Show this window when the radio starts", IDC_SHOW, 7, 203, 236, 10
+    LTEXT           "", IDC_INI, 7, 216, 236, 9, SS_PATHELLIPSIS
+    LTEXT           "Plugin by: PY3OW and PY3CRX", IDC_STATIC, 7, 227, 236, 9
+    DEFPUSHBUTTON   "OK", IDOK, 85, 243, 50, 14
+    PUSHBUTTON      "Cancel", IDCANCEL, 139, 243, 50, 14
+    PUSHBUTTON      "Apply", IDC_APPLY, 193, 243, 50, 14
+END
