@@ -32,13 +32,13 @@ INC="-DSTATIC_AIRSPYHFPLUS -I$TP/libusb/include -I$SRC"
 DLG="-Iconfig config/settings_dialog.c -lcomctl32"
 
 i686-w64-mingw32-windres -I config config/settings.rc -O coff -o $TP/dll_res.o
-i686-w64-mingw32-gcc -std=gnu17 -O2 -msse2 -shared -static -o bin/AirspyHfIntf.dll \
+i686-w64-mingw32-gcc -std=gnu17 -O2 -s -msse2 -shared -static -o bin/AirspyHfIntf.dll \
     -DSTATIC_AIRSPYHF $INC AirspyHfIntf.c $TP/dll_res.o $LIBS $DLG \
     -Wl,--kill-at -Wl,--exclude-all-symbols
 echo "bin/AirspyHfIntf.dll built"
 
 i686-w64-mingw32-windres -DWITH_MANIFEST -I config config/settings.rc -O coff -o $TP/exe_res.o
-i686-w64-mingw32-gcc -std=gnu17 -O2 -mwindows -static -o bin/AirspyHfIntfConfig.exe \
+i686-w64-mingw32-gcc -std=gnu17 -O2 -s -mwindows -static -o bin/AirspyHfIntfConfig.exe \
     $INC config/AirspyHfIntfConfig.c $TP/exe_res.o $LIBS $DLG -lshell32
 echo "bin/AirspyHfIntfConfig.exe built"
 
@@ -49,13 +49,13 @@ RLIBS="$RSRC/librtlsdr.c $RSRC/tuner_e4k.c $RSRC/tuner_fc0012.c $RSRC/tuner_fc00
 RDLG="-Irtlsdr rtlsdr/rtl_settings_dialog.c -lcomctl32"
 
 i686-w64-mingw32-windres -I rtlsdr rtlsdr/settings.rc -O coff -o $TP/rtl_dll_res.o
-i686-w64-mingw32-gcc -std=gnu17 -O2 -msse2 -shared -static -o bin/RtlSdrIntf.dll \
+i686-w64-mingw32-gcc -std=gnu17 -O2 -s -msse2 -shared -static -o bin/RtlSdrIntf.dll \
     $RINC RtlSdrIntf.c $TP/rtl_dll_res.o $RLIBS $RDLG \
     -Wl,--kill-at -Wl,--exclude-all-symbols
 echo "bin/RtlSdrIntf.dll built"
 
 i686-w64-mingw32-windres -DWITH_MANIFEST -I rtlsdr rtlsdr/settings.rc -O coff -o $TP/rtl_exe_res.o
-i686-w64-mingw32-gcc -std=gnu17 -O2 -mwindows -static -o bin/RtlSdrIntfConfig.exe \
+i686-w64-mingw32-gcc -std=gnu17 -O2 -s -mwindows -static -o bin/RtlSdrIntfConfig.exe \
     $RINC rtlsdr/RtlSdrIntfConfig.c $TP/rtl_exe_res.o $RLIBS $RDLG -lshell32
 echo "bin/RtlSdrIntfConfig.exe built"
 
