@@ -42,7 +42,7 @@ enum { S_TITLE, S_G_RADIO, S_L_DEVICE, S_REFRESH, S_FIRST, S_NOTE, S_FOUND0, S_F
        S_FILE, S_ERRWRITE, S_COUNT };
 
 static const wchar_t *STR[S_COUNT][2] = {
-    { L"RTL-SDR for CW Skimmer - Settings", L"RTL-SDR para CW Skimmer - Configura\u00e7\u00e3o" },
+    { L"RTL-SDR for Skimmer Server - Settings", L"RTL-SDR para Skimmer Server - Configura\u00e7\u00e3o" },
     { L"Radio", L"R\u00e1dio" },
     { L"Device:", L"Dispositivo:" },
     { L"Refresh", L"Atualizar" },

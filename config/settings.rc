@@ -8,7 +8,7 @@
 
 IDD_MAIN DIALOGEX 0, 0, 250, 264
 STYLE DS_SETFONT | DS_MODALFRAME | DS_CENTER | WS_POPUP | WS_CAPTION | WS_SYSMENU | WS_MINIMIZEBOX
-CAPTION "Airspy HF+ for CW Skimmer - Settings"
+CAPTION "Airspy HF+ for Skimmer Server - Settings"
 FONT 9, "Segoe UI"
 BEGIN
     GROUPBOX        "Radio", IDC_G_RADIO, 7, 5, 236, 55

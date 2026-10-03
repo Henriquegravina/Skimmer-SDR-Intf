@@ -1,6 +1,6 @@
 /*
  * RtlSdrIntf.dll - RTL-SDR (RTL-SDR Blog V3 / V4 and compatible dongles) for
- * CW Skimmer, Skimmer Server and RTTY Skimmer Server
+ * Skimmer Server and RTTY Skimmer Server
  *
  * Implements VE3NEA's radio DLL interface (SdrTypes unit):
  *   GetSdrInfo, StartRx, StopRx, SetRxFrequency, SetCtrlBits, ReadPort

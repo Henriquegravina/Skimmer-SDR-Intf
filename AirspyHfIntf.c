@@ -1,5 +1,5 @@
 /*
- * AirspyHfIntf.dll - Airspy HF+ / HF+ Discovery para CW Skimmer e Skimmer Server
+ * AirspyHfIntf.dll - Airspy HF+ / HF+ Discovery para Skimmer Server e RTTY Skimmer Server
  *
  * Implementa a interface de DLL de radio do VE3NEA (unit SdrTypes):
  *   GetSdrInfo, StartRx, StopRx, SetRxFrequency, SetCtrlBits, ReadPort

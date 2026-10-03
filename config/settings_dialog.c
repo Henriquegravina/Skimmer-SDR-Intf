@@ -26,7 +26,7 @@ enum { S_TITLE, S_G_RADIO, S_L_RADIO, S_REFRESH, S_FIRST, S_NOTE, S_FOUND0, S_FO
        S_FILE, S_ERRWRITE, S_SHOW, S_COUNT };
 
 static const wchar_t *STR[S_COUNT][2] = {
-    { L"Airspy HF+ for CW Skimmer - Settings", L"Airspy HF+ para CW Skimmer - Configura\u00e7\u00e3o" },
+    { L"Airspy HF+ for Skimmer Server - Settings", L"Airspy HF+ para Skimmer Server - Configura\u00e7\u00e3o" },
     { L"Radio", L"R\u00e1dio" },
     { L"Serial number:", L"N\u00famero de s\u00e9rie:" },
     { L"Refresh", L"Atualizar" },
