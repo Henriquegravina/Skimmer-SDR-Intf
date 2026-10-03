@@ -3,6 +3,10 @@
  * the radio) and AirspyHfIntfConfig.exe. It only reads and writes the .ini;
  * the DLL watches that file and applies the changes while receiving.
  *
+ * While the Skimmer is receiving, two meters show the peak level of the I
+ * and Q samples coming from the radio, so the gain can be lowered before
+ * they clip.
+ *
  * The interface is shown in Portuguese when Windows is in Portuguese,
  * otherwise in English.
  */
@@ -16,14 +20,19 @@
 #include <wchar.h>
 #include "resource.h"
 #include "settings_dialog.h"
+#include "level_meter.h"
 
 static SettingsCtx *g_ctx;
 static int g_pt;
+static LevelMeter g_meter[2];                 /* I, Q */
+static int g_live;                            /* the level note shows the receiving text */
+
+#define METER_TIMER 1
 
 enum { S_TITLE, S_G_RADIO, S_L_RADIO, S_REFRESH, S_FIRST, S_NOTE, S_FOUND0, S_FOUND,
        S_G_FRONT, S_AGC, S_L_THR, S_LOW, S_HIGH, S_L_ATT, S_LNA,
        S_G_DSP, S_L_GAIN, S_L_OFFSET, S_INVQ, S_LOG, S_CANCEL, S_APPLY,
-       S_FILE, S_ERRWRITE, S_SHOW, S_COUNT };
+       S_FILE, S_ERRWRITE, S_SHOW, S_G_LEVEL, S_LVL_HINT, S_LVL_IDLE, S_COUNT };
 
 static const wchar_t *STR[S_COUNT][2] = {
     { L"Airspy HF+ for Skimmer Server - Settings", L"Airspy HF+ para Skimmer Server - Configura\u00e7\u00e3o" },
@@ -52,6 +61,10 @@ static const wchar_t *STR[S_COUNT][2] = {
     { L"File: %hs", L"Arquivo: %hs" },
     { L"Could not write the settings file:\n%hs", L"N\u00e3o foi poss\u00edvel gravar o arquivo de configura\u00e7\u00e3o:\n%hs" },
     { L"Show this window when the radio starts", L"Mostrar esta janela quando o r\u00e1dio iniciar" },
+    { L"Signal level (peak)", L"N\u00edvel do sinal (pico)" },
+    { L"Keep peaks below -3 dBFS. On CLIP, lower the gain.",
+      L"Picos abaixo de -3 dBFS. Se acender CLIP, reduza o ganho." },
+    { L"Shown while the Skimmer is receiving.", L"Aparece enquanto o Skimmer estiver recebendo." },
 };
 #define T(id) (STR[id][g_pt])
 
@@ -87,6 +100,15 @@ static void update_enables(HWND d)
     EnableWindow(GetDlgItem(d, IDC_L_THR), agc);
     EnableWindow(GetDlgItem(d, IDC_ATT), !agc);
     EnableWindow(GetDlgItem(d, IDC_L_ATT), !agc);
+}
+
+static void update_meters(HWND d)
+{
+    int live = meter_poll(g_meter, g_ctx->read_peaks, GetDlgItem(d, IDC_METER_I), GetDlgItem(d, IDC_METER_Q));
+    if (live != g_live) {
+        g_live = live;
+        set_text(d, IDC_LEVELNOTE, live ? S_LVL_HINT : S_LVL_IDLE);
+    }
 }
 
 static int clampi(int v, int lo, int hi) { return v < lo ? lo : v > hi ? hi : v; }
@@ -163,7 +185,6 @@ static INT_PTR CALLBACK dlg_proc(HWND d, UINT m, WPARAM wp, LPARAM lp)
 {
     wchar_t buf[MAX_PATH + 32];
     int i;
-    (void)lp;
 
     switch (m) {
     case WM_INITDIALOG:
@@ -177,6 +198,7 @@ static INT_PTR CALLBACK dlg_proc(HWND d, UINT m, WPARAM wp, LPARAM lp)
         set_text(d, IDC_L_OFFSET, S_L_OFFSET); set_text(d, IDC_INVQ, S_INVQ);
         set_text(d, IDC_LOG, S_LOG);           set_text(d, IDCANCEL, S_CANCEL);
         set_text(d, IDC_APPLY, S_APPLY);       set_text(d, IDC_SHOW, S_SHOW);
+        set_text(d, IDC_G_LEVEL, S_G_LEVEL);   set_text(d, IDC_LEVELNOTE, S_LVL_IDLE);
         swprintf(buf, MAX_PATH + 32, T(S_FILE), g_ctx->ini);
         SetDlgItemTextW(d, IDC_INI, buf);
 
@@ -190,7 +212,22 @@ static INT_PTR CALLBACK dlg_proc(HWND d, UINT m, WPARAM wp, LPARAM lp)
         SendDlgItemMessageW(d, IDC_RADIO, CB_LIMITTEXT, 32, 0);
         fill_radios(d);
         load(d);
+        meter_reset(&g_meter[0]);
+        meter_reset(&g_meter[1]);
+        g_live = 0;
+        SetTimer(d, METER_TIMER, 100, NULL);
         return TRUE;
+
+    case WM_TIMER:
+        if (wp == METER_TIMER) update_meters(d);
+        return TRUE;
+
+    case WM_DRAWITEM:
+        if (wp == IDC_METER_I || wp == IDC_METER_Q) {
+            meter_draw(&g_meter[wp == IDC_METER_Q], wp == IDC_METER_Q ? L"Q" : L"I", (const DRAWITEMSTRUCT *)lp);
+            return TRUE;
+        }
+        break;
 
     case WM_COMMAND:
         switch (LOWORD(wp)) {
@@ -203,6 +240,7 @@ static INT_PTR CALLBACK dlg_proc(HWND d, UINT m, WPARAM wp, LPARAM lp)
         break;
 
     case WM_DESTROY:
+        KillTimer(d, METER_TIMER);
         if (g_ctx->hwnd_out) *g_ctx->hwnd_out = NULL;
         break;
     }

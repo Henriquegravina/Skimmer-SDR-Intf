@@ -22,6 +22,10 @@
 #define IDC_G_FRONT   1107
 #define IDC_G_DSP     1108
 #define IDC_NOTE      1109
+#define IDC_G_LEVEL   1110
+#define IDC_METER_I   1111
+#define IDC_METER_Q   1112
+#define IDC_LEVELNOTE 1113
 #ifndef IDC_STATIC
 #define IDC_STATIC    (-1)
 #endif

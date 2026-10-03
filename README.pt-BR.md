@@ -24,6 +24,7 @@ O restante desta página trata da DLL do Airspy.
 | `bin/RtlSdrIntf.dll`, `bin/RtlSdrIntfConfig.exe` | Os mesmos dois arquivos para o RTL-SDR |
 | `AirspyHfIntf.c` | Código-fonte da DLL (C, arquivo único) |
 | `config/` | Código-fonte da janela de configuração (usado pela DLL e pelo programa separado) |
+| `common/` | Medidores de nível do sinal, usados pelas janelas de configuração das duas DLLs |
 | `AirspyHfIntf.ini` | Configuração (opcional) |
 | `test/mock_airspyhf.c` | `airspyhf.dll` falsa que gera um tom de 10 kHz |
 | `test/host.c` | Programa de teste que faz o papel do Skimmer |
@@ -69,12 +70,25 @@ A janela faz parte da DLL e abre sozinha quando o Skimmer inicia o rádio. Ela r
 
 - **Número de série:** lista os rádios encontrados, para escolher um quando houver mais de um. Também dá para digitar o número de série.
 - **Entrada de RF:** AGC de HF, limiar do AGC, atenuador (com o AGC desligado) e pré-amplificador.
+- **Nível do sinal (pico):** veja [Medidores de nível](#medidores-de-nível).
 - **Saída para o Skimmer:** ganho digital, deslocamento de frequência, inversão de Q e arquivo de log.
 - **Aplicar** grava sem fechar, para você acompanhar o efeito no waterfall.
 
 A janela aparece em português quando o Windows está em português e em inglês nos demais casos.
 
 O `AirspyHfIntfConfig.exe` abre a mesma janela sem o Skimmer, o que ajuda quando a janela foi desativada ou o rádio configurado não abre. Copie-o para a pasta da DLL. Para editar outro arquivo, passe o caminho na linha de comando: `AirspyHfIntfConfig.exe AirspyHfIntf_2.ini`. Se a pasta ficar em `Program Files`, ele oferece reiniciar como administrador, que essa pasta exige para gravar.
+
+### Medidores de nível
+
+Com o Skimmer recebendo, duas barras mostram o nível de pico das amostras **I** e **Q** que chegam do rádio, em dBFS (0 dBFS é o fundo de escala). A medida é feita antes do ganho digital, então o `GainDb` não as move; o que as move é o sinal da antena, o atenuador, o LNA e o AGC.
+
+- A barra fica verde até -12 dBFS, amarela até -3 dBFS e vermelha acima disso. A marca branca e o número à direita são o maior pico dos últimos 2 segundos.
+- **CLIP** em vermelho indica que as amostras chegaram ao fundo de escala. Ele fica aceso por 3 segundos depois da última vez.
+- Mantenha os picos abaixo de cerca de -3 dBFS. Se acender CLIP, aumente o atenuador (com o AGC desligado), desligue o LNA ou ligue o AGC de HF.
+
+O Airspy HF+ envia amostras de 16 bits, e o medidor mede esse fluxo: 0 dBFS é o fundo de escala dele. A libairspyhf corrige o ganho dos filtros do rádio em alguns dB, conforme a taxa de amostragem, então um fluxo no fundo de escala pode marcar um pouco abaixo de 0 dBFS.
+
+Com o rádio parado, e no `AirspyHfIntfConfig.exe`, as barras ficam vazias: só a DLL, rodando dentro do Skimmer, vê as amostras.
 
 ### Mais de um rádio
 
@@ -155,7 +169,7 @@ Para refazer o teste simulado:
 
 ```
 i686-w64-mingw32-windres -I config config/settings.rc -O coff -o res.o
-i686-w64-mingw32-gcc -O2 -msse2 -shared -static-libgcc -o Qs1rIntf.dll AirspyHfIntf.c config/settings_dialog.c res.o -lcomctl32 -Wl,--kill-at
+i686-w64-mingw32-gcc -O2 -msse2 -shared -static-libgcc -Icommon -o Qs1rIntf.dll AirspyHfIntf.c config/settings_dialog.c common/level_meter.c res.o -lcomctl32 -lgdi32 -Wl,--kill-at
 i686-w64-mingw32-gcc -O2 -shared -o airspyhf.dll test/mock_airspyhf.c
 i686-w64-mingw32-gcc -O2 -o host.exe test/host.c
 host.exe

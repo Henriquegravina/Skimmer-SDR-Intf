@@ -42,6 +42,12 @@ grava no .ini; tambem da para editar o arquivo a mao. As mudancas valem com
 o Skimmer recebendo; so o numero de serie espera o radio ser reiniciado.
 O AirspyHfIntfConfig.exe (opcional) abre a mesma janela sem o Skimmer.
 
+Nivel do sinal: com o Skimmer recebendo, duas barras na janela mostram o
+pico das amostras I e Q em dBFS. Mantenha os picos abaixo de -3 dBFS; se
+acender CLIP (vermelho), o sinal chegou ao fundo de escala: aumente o
+atenuador, desligue o LNA ou ligue o AGC. No RTL-SDR, reduza o ganho do
+sintonizador.
+
 HfAgc, HfAgcThreshold, HfAtt, HfLna  controles do front-end do radio
 GainDb        ganho digital, se o waterfall ficar fraco ou saturado
 InvertQ       ponha 1 se o espectro aparecer espelhado

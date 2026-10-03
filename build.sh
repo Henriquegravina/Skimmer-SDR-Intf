@@ -29,7 +29,7 @@ SRC=$TP/airspyhf/libairspyhf/src
 LIBS="$SRC/airspyhf.c $SRC/iqbalancer.c $TP/libusb/MinGW32/static/libusb-1.0.a -lpthread"
 INC="-DSTATIC_AIRSPYHFPLUS -I$TP/libusb/include -I$SRC"
 
-DLG="-Iconfig config/settings_dialog.c -lcomctl32"
+DLG="-Iconfig -Icommon config/settings_dialog.c common/level_meter.c -lcomctl32 -lgdi32"
 
 i686-w64-mingw32-windres -I config config/settings.rc -O coff -o $TP/dll_res.o
 i686-w64-mingw32-gcc -std=gnu17 -O2 -s -msse2 -shared -static -o bin/AirspyHfIntf.dll \
@@ -46,7 +46,7 @@ echo "bin/AirspyHfIntfConfig.exe built"
 RSRC=$TP/rtl-sdr-blog/src
 RINC="-Drtlsdr_STATIC -I$TP/rtl-sdr-blog/include -I$TP/libusb/include"
 RLIBS="$RSRC/librtlsdr.c $RSRC/tuner_e4k.c $RSRC/tuner_fc0012.c $RSRC/tuner_fc0013.c $RSRC/tuner_fc2580.c $RSRC/tuner_r82xx.c $TP/libusb/MinGW32/static/libusb-1.0.a"
-RDLG="-Irtlsdr rtlsdr/rtl_settings_dialog.c -lcomctl32"
+RDLG="-Irtlsdr -Icommon rtlsdr/rtl_settings_dialog.c common/level_meter.c -lcomctl32 -lgdi32"
 
 i686-w64-mingw32-windres -I rtlsdr rtlsdr/settings.rc -O coff -o $TP/rtl_dll_res.o
 i686-w64-mingw32-gcc -std=gnu17 -O2 -s -msse2 -shared -static -o bin/RtlSdrIntf.dll \

@@ -55,6 +55,19 @@ Uma nova taxa de amostragem vale na próxima vez que o Skimmer iniciar o rádio.
 
 Marcar **Bias-T** coloca alimentação DC (cerca de 4,5 V no V3 e no V4) no conector de antena, para alimentar uma antena ativa ou um pré-amplificador. Vem desligado. Não ligue com uma antena que seja curto-circuito em DC. A DLL desliga o Bias-T de novo quando o Skimmer para o rádio.
 
+## Medidores de nível
+
+Com o Skimmer recebendo, duas barras na janela de configuração mostram o nível de pico das amostras **I** e **Q** direto da saída do conversor de 8 bits do dongle, em dBFS. 0 dBFS indica que o conversor chegou ao código 0 ou 255, ou seja, o sinal está ceifando, e o **CLIP** acende em vermelho por 3 segundos. A barra fica verde até -12 dBFS, amarela até -3 dBFS e vermelha acima disso; a marca branca e o número à direita são o maior pico dos últimos 2 segundos.
+
+A medida é feita antes de qualquer filtragem e antes do `GainDb`, então mostra o que o conversor enxerga, incluindo sinais fortes fora da banda do Skimmer. Mantenha os picos abaixo de cerca de -3 dBFS. Se acender CLIP:
+
+- com o sintonizador em uso, reduza o **ganho do sintonizador** (ou desligue o AGC do sintonizador e escolha um valor menor) e experimente o filtro do sintonizador mais estreito;
+- na amostragem direta, desligue o **AGC digital do RTL2832** e, se ainda ceifar, coloque um atenuador ou um filtro passa-faixa antes do dongle.
+
+Na amostragem direta só um ramo leva o sinal, então uma das barras fica perto do mínimo. Isso é esperado.
+
+Com o rádio parado, e no `RtlSdrIntfConfig.exe`, as barras ficam vazias.
+
 ## Configuração
 
 Os ajustes ficam no `RtlSdrIntf.ini`, ao lado da DLL. A janela de configuração faz parte da DLL e abre sozinha quando o Skimmer inicia o rádio; ela grava nesse arquivo, e você também pode editá-lo à mão. As mudanças valem com o Skimmer recebendo. Só a escolha do dongle espera a próxima vez que o rádio for iniciado.

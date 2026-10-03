@@ -55,6 +55,19 @@ A new sampling rate takes effect the next time the Skimmer starts the radio.
 
 Ticking **Bias-T** puts DC power (about 4.5 V on the V3 and V4) on the antenna connector, to feed an active antenna or a preamplifier. It is off by default. Do not turn it on with an antenna that is a DC short circuit. The DLL turns it off again when the Skimmer stops the radio.
 
+## Level meters
+
+While the Skimmer is receiving, two bars in the settings window show the peak level of the **I** and **Q** samples straight out of the dongle's 8-bit converter, in dBFS. 0 dBFS means the converter reached code 0 or 255, that is, the signal is clipping, and **CLIP** lights up in red for 3 seconds. The bar is green up to -12 dBFS, yellow up to -3 dBFS and red above that; the white mark and the number on the right are the highest peak of the last 2 seconds.
+
+The meters are read before any filtering and before `GainDb`, so they show what the converter sees, including strong signals outside the Skimmer's band. Keep the peaks below about -3 dBFS. If CLIP lights up:
+
+- with the tuner in use, lower the **tuner gain** (or turn the tuner AGC off and pick a lower value) and try the narrowest tuner filter;
+- in direct sampling, turn the **RTL2832 digital AGC** off, and if it still clips, put an attenuator or a band-pass filter ahead of the dongle.
+
+In direct sampling only one branch carries the signal, so one bar stays near the bottom. That is expected.
+
+With the radio stopped, and in `RtlSdrIntfConfig.exe`, the bars are empty.
+
 ## Settings
 
 Settings live in `RtlSdrIntf.ini`, next to the DLL. The settings window is built into the DLL and opens by itself when the Skimmer starts the radio; it writes to that file, and you can also edit it by hand. Changes are applied while the Skimmer is receiving. Only the choice of dongle waits for the next time the radio is started.

@@ -24,6 +24,7 @@ The rest of this page is about the Airspy DLL.
 | `bin/RtlSdrIntf.dll`, `bin/RtlSdrIntfConfig.exe` | The same two files for the RTL-SDR |
 | `AirspyHfIntf.c` | DLL source code (C, single file) |
 | `config/` | Source code of the settings window (shared by the DLL and the standalone program) |
+| `common/` | Signal level meters, used by the settings windows of both DLLs |
 | `AirspyHfIntf.ini` | Settings file (optional) |
 | `test/mock_airspyhf.c` | Fake `airspyhf.dll` that generates a 10 kHz tone |
 | `test/host.c` | Test program that plays the role of the Skimmer |
@@ -69,12 +70,25 @@ The window is built into the DLL and opens by itself when the Skimmer starts the
 
 - **Serial number:** lists the radios found, so you can pick one when you have more than one. You can also type the serial number.
 - **Front end:** HF AGC, AGC threshold, attenuator (when AGC is off) and preamplifier.
+- **Signal level (peak):** see [Level meters](#level-meters).
 - **Output to the Skimmer:** digital gain, frequency offset, Q inversion and log file.
 - **Apply** saves without closing, so you can watch the effect on the waterfall.
 
 The window is shown in Portuguese when Windows is in Portuguese, otherwise in English.
 
 `AirspyHfIntfConfig.exe` opens the same window without the Skimmer, which is useful when the window was turned off or the configured radio cannot be opened. Copy it to the folder of the DLL. To edit a different file, pass its path on the command line: `AirspyHfIntfConfig.exe AirspyHfIntf_2.ini`. If the folder is under `Program Files`, it offers to restart as administrator, which that folder requires for saving.
+
+### Level meters
+
+While the Skimmer is receiving, two bars show the peak level of the **I** and **Q** samples coming from the radio, in dBFS (0 dBFS is full scale). They are measured before the digital gain, so `GainDb` does not move them; what moves them is the antenna signal, the attenuator, the LNA and the AGC.
+
+- The bar is green up to -12 dBFS, yellow up to -3 dBFS and red above that. The white mark and the number on the right are the highest peak of the last 2 seconds.
+- **CLIP** in red means the samples reached full scale. It stays lit for 3 seconds after the last time.
+- Keep the peaks below about -3 dBFS. If CLIP lights up, raise the attenuator (with the AGC off), turn the LNA off or turn the HF AGC on.
+
+The Airspy HF+ sends 16-bit samples, and the meter measures that stream: 0 dBFS is its full scale. libairspyhf corrects the gain of the radio's filters by a few dB depending on the sampling rate, so a stream at full scale may read slightly below 0 dBFS.
+
+With the radio stopped, and in `AirspyHfIntfConfig.exe`, the bars are empty: only the DLL, running inside the Skimmer, sees the samples.
 
 ### More than one radio
 
@@ -155,7 +169,7 @@ To rerun the simulated test:
 
 ```
 i686-w64-mingw32-windres -I config config/settings.rc -O coff -o res.o
-i686-w64-mingw32-gcc -O2 -msse2 -shared -static-libgcc -o Qs1rIntf.dll AirspyHfIntf.c config/settings_dialog.c res.o -lcomctl32 -Wl,--kill-at
+i686-w64-mingw32-gcc -O2 -msse2 -shared -static-libgcc -Icommon -o Qs1rIntf.dll AirspyHfIntf.c config/settings_dialog.c common/level_meter.c res.o -lcomctl32 -lgdi32 -Wl,--kill-at
 i686-w64-mingw32-gcc -O2 -shared -o airspyhf.dll test/mock_airspyhf.c
 i686-w64-mingw32-gcc -O2 -o host.exe test/host.c
 host.exe

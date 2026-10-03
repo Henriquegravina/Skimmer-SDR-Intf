@@ -6,7 +6,7 @@
 1 RT_MANIFEST "RtlSdrIntfConfig.manifest"
 #endif
 
-IDD_MAIN DIALOGEX 0, 0, 250, 347
+IDD_MAIN DIALOGEX 0, 0, 250, 405
 STYLE DS_SETFONT | DS_MODALFRAME | DS_CENTER | WS_POPUP | WS_CAPTION | WS_SYSMENU | WS_MINIMIZEBOX
 CAPTION "RTL-SDR for Skimmer Server - Settings"
 FONT 9, "Segoe UI"
@@ -33,19 +33,24 @@ BEGIN
     LTEXT           "Frequency correction (ppm):", IDC_L_PPM, 15, 196, 112, 9
     EDITTEXT        IDC_PPM, 130, 194, 40, 13, ES_AUTOHSCROLL
 
-    GROUPBOX        "Output to the Skimmer", IDC_G_DSP, 7, 217, 236, 64
-    LTEXT           "Digital gain (dB):", IDC_L_GAIN, 15, 232, 62, 9
-    EDITTEXT        IDC_GAIN, 80, 230, 40, 13, ES_AUTOHSCROLL
-    CONTROL         "", IDC_GAINSPIN, UPDOWN_CLASS, UDS_SETBUDDYINT | UDS_ALIGNRIGHT | UDS_AUTOBUDDY | UDS_ARROWKEYS | UDS_NOTHOUSANDS, 0, 51, 10, 13
-    LTEXT           "Freq. offset (Hz):", IDC_L_OFFSET, 130, 232, 62, 9
-    EDITTEXT        IDC_OFFSET, 193, 230, 42, 13, ES_AUTOHSCROLL
-    AUTOCHECKBOX    "Invert Q", IDC_INVQ, 15, 249, 220, 10
-    AUTOCHECKBOX    "Write log file", IDC_LOG, 15, 264, 220, 10
+    GROUPBOX        "Signal level (peak)", IDC_G_LEVEL, 7, 217, 236, 54
+    CONTROL         "", IDC_METER_I, "Static", SS_OWNERDRAW, 15, 230, 222, 10
+    CONTROL         "", IDC_METER_Q, "Static", SS_OWNERDRAW, 15, 243, 222, 10
+    LTEXT           "", IDC_LEVELNOTE, 15, 257, 222, 9
 
-    AUTOCHECKBOX    "Show this window when the radio starts", IDC_SHOW, 7, 286, 236, 10
-    LTEXT           "", IDC_INI, 7, 299, 236, 9, SS_PATHELLIPSIS
-    LTEXT           "Plugin by: PY3OW and PY2PLL+PY3CRX", IDC_STATIC, 7, 310, 236, 9
-    DEFPUSHBUTTON   "OK", IDOK, 85, 326, 50, 14
-    PUSHBUTTON      "Cancel", IDCANCEL, 139, 326, 50, 14
-    PUSHBUTTON      "Apply", IDC_APPLY, 193, 326, 50, 14
+    GROUPBOX        "Output to the Skimmer", IDC_G_DSP, 7, 275, 236, 64
+    LTEXT           "Digital gain (dB):", IDC_L_GAIN, 15, 290, 62, 9
+    EDITTEXT        IDC_GAIN, 80, 288, 40, 13, ES_AUTOHSCROLL
+    CONTROL         "", IDC_GAINSPIN, UPDOWN_CLASS, UDS_SETBUDDYINT | UDS_ALIGNRIGHT | UDS_AUTOBUDDY | UDS_ARROWKEYS | UDS_NOTHOUSANDS, 0, 51, 10, 13
+    LTEXT           "Freq. offset (Hz):", IDC_L_OFFSET, 130, 290, 62, 9
+    EDITTEXT        IDC_OFFSET, 193, 288, 42, 13, ES_AUTOHSCROLL
+    AUTOCHECKBOX    "Invert Q", IDC_INVQ, 15, 307, 220, 10
+    AUTOCHECKBOX    "Write log file", IDC_LOG, 15, 322, 220, 10
+
+    AUTOCHECKBOX    "Show this window when the radio starts", IDC_SHOW, 7, 344, 236, 10
+    LTEXT           "", IDC_INI, 7, 357, 236, 9, SS_PATHELLIPSIS
+    LTEXT           "Plugin by: PY3OW and PY2PLL+PY3CRX", IDC_STATIC, 7, 368, 236, 9
+    DEFPUSHBUTTON   "OK", IDOK, 85, 384, 50, 14
+    PUSHBUTTON      "Cancel", IDCANCEL, 139, 384, 50, 14
+    PUSHBUTTON      "Apply", IDC_APPLY, 193, 384, 50, 14
 END

@@ -30,6 +30,7 @@
 #include <malloc.h>
 #include "rtl-sdr.h"
 #include "rtlsdr/rtl_settings_dialog.h"
+#include "common/level_meter.h"
 
 /* ------------------------------------------------------------------ */
 /* Skimmer interface (SdrTypes.pas)                                    */
@@ -194,6 +195,7 @@ static int    g_block, g_fill;
 static float  g_scale, g_qsign;
 static float  g_lut[256];
 static float  g_dc_re, g_dc_im;
+static volatile LONG g_peak[2];              /* peak |I| and |Q| at the converter, for the window's meters */
 static int    g_freq = 14050000;
 
 /* settings (RtlSdrIntf.ini) */
@@ -302,6 +304,16 @@ static int pick_radio(void)
 static HWND          g_ui_hwnd;
 static volatile LONG g_ui_running;
 
+/* I and Q peaks at the 8-bit converter (1.0 = code 0 or 255) since the
+   previous call; 0 when the radio is not receiving */
+static int read_peaks(float peak[2])
+{
+    if (!g_running) return 0;
+    peak[0] = meter_peak_take(&g_peak[0]);
+    peak[1] = meter_peak_take(&g_peak[1]);
+    return 1;
+}
+
 static DWORD WINAPI ui_thread(LPVOID arg)
 {
     static RtlSettingsCtx ctx;
@@ -310,6 +322,7 @@ static DWORD WINAPI ui_thread(LPVOID arg)
     ctx.list_radios = scan_radios;
     ctx.hwnd_out = &g_ui_hwnd;
     ctx.lang = -1;
+    ctx.read_peaks = read_peaks;
     rtl_settings_dialog_run(g_inst, &ctx);
     InterlockedExchange(&g_ui_running, 0);
     return 0;
@@ -406,12 +419,17 @@ static DWORD WINAPI watch_thread(LPVOID arg)
 static void on_samples(unsigned char *buf, uint32_t len, void *ctx)
 {
     uint32_t i;
-    int k;
+    int k, pk_i = 0, pk_q = 0;
     (void)ctx;
 
     if (!g_running) return;
     for (i = 0; i + 1 < len; i += 2) {
         Cmplx s;
+        /* distance from the converter's midpoint, 1 to 255: 255 means code 0 or 255 */
+        int a_i = abs(2 * buf[i] - 255), a_q = abs(2 * buf[i + 1] - 255);
+        if (a_i > pk_i) pk_i = a_i;
+        if (a_q > pk_q) pk_q = a_q;
+
         s.Re = g_lut[buf[i]];
         s.Im = g_lut[buf[i + 1]];
 
@@ -432,6 +450,8 @@ static void on_samples(unsigned char *buf, uint32_t len, void *ctx)
             if (g_running && g_set.IqProc) g_set.IqProc(g_set.RxHandle, g_ptrs);
         }
     }
+    meter_peak_merge(&g_peak[0], pk_i / 255.0f);
+    meter_peak_merge(&g_peak[1], pk_q / 255.0f);
 }
 
 static DWORD WINAPI reader_thread(LPVOID arg)
@@ -559,6 +579,7 @@ __declspec(dllexport) void __stdcall StartRx(TSdrSettings *settings)
     for (i = 1; i < MAX_RX_COUNT; i++) g_ptrs[i] = g_buf[1];   /* unused receivers */
     g_fill = 0;
     g_dc_re = g_dc_im = 0.0f;
+    g_peak[0] = g_peak[1] = 0;
 
     apply_settings(dev);
 

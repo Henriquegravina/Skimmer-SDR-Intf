@@ -23,6 +23,7 @@
 #include <math.h>
 #include <malloc.h>
 #include "config/settings_dialog.h"
+#include "common/level_meter.h"
 
 /* ------------------------------------------------------------------ */
 /* Interface do Skimmer (SdrTypes.pas)                                 */
@@ -170,6 +171,7 @@ static int    g_block, g_fill;
 static float  g_scale, g_qsign;
 static int    g_freq = 14050000;
 static uint64_t g_dropped;
+static volatile LONG g_peak[2];              /* pico de |I| e |Q| para os medidores da janela */
 
 /* configuracao (AirspyHfIntf.ini) */
 static char   g_dir[MAX_PATH], g_ini[MAX_PATH], g_logfile[MAX_PATH];
@@ -315,6 +317,16 @@ static void scan_radios(void) {}
 static int (*const list_radios)(uint64_t *, int) = NULL;   /* airspyhf.dll externa: sem lista */
 #endif
 
+/* Picos de I e Q (1.0 = fundo de escala da saida de 16 bits do radio)
+   desde a chamada anterior; 0 se o radio nao estiver recebendo */
+static int read_peaks(float peak[2])
+{
+    if (!g_running) return 0;
+    peak[0] = meter_peak_take(&g_peak[0]);
+    peak[1] = meter_peak_take(&g_peak[1]);
+    return 1;
+}
+
 static DWORD WINAPI ui_thread(LPVOID arg)
 {
     static SettingsCtx ctx;
@@ -323,6 +335,7 @@ static DWORD WINAPI ui_thread(LPVOID arg)
     ctx.list_radios = list_radios;
     ctx.hwnd_out = &g_ui_hwnd;
     ctx.lang = -1;
+    ctx.read_peaks = read_peaks;
     settings_dialog_run(g_inst, &ctx);
     InterlockedExchange(&g_ui_running, 0);
     return 0;
@@ -393,6 +406,7 @@ static DWORD WINAPI watch_thread(LPVOID arg)
 /* ------------------------------------------------------------------ */
 static int __cdecl on_samples(airspyhf_transfer_t *t)
 {
+    float pk_i = 0.0f, pk_q = 0.0f;
     int i, k;
 
     if (!g_running) return 0;
@@ -406,6 +420,8 @@ static int __cdecl on_samples(airspyhf_transfer_t *t)
         Cmplx s;
         s.Re = t->samples[i].re;
         s.Im = t->samples[i].im;
+        if (fabsf(s.Re) > pk_i) pk_i = fabsf(s.Re);
+        if (fabsf(s.Im) > pk_q) pk_q = fabsf(s.Im);
 
         for (k = 0; k < g_nstages; k++)
             if (!stage_push(&g_stage[k], s, &s)) break;
@@ -418,6 +434,8 @@ static int __cdecl on_samples(airspyhf_transfer_t *t)
             if (g_running && g_set.IqProc) g_set.IqProc(g_set.RxHandle, g_ptrs);
         }
     }
+    meter_peak_merge(&g_peak[0], pk_i);
+    meter_peak_merge(&g_peak[1], pk_q);
     return 0;
 }
 
@@ -537,6 +555,7 @@ __declspec(dllexport) void __stdcall StartRx(TSdrSettings *settings)
     memset(g_stage, 0, sizeof g_stage);
     g_fill = 0;
     g_dropped = 0;
+    g_peak[0] = g_peak[1] = 0;
 
     EnterCriticalSection(&g_cs);
     g_dev = dev;

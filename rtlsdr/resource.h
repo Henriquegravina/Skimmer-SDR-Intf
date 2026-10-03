@@ -30,6 +30,10 @@
 #define IDC_G_DSP     1109
 #define IDC_L_TBW     1110
 #define IDC_L_RATE    1111
+#define IDC_G_LEVEL   1112
+#define IDC_METER_I   1113
+#define IDC_METER_Q   1114
+#define IDC_LEVELNOTE 1115
 #ifndef IDC_STATIC
 #define IDC_STATIC    (-1)
 #endif
