@@ -19,6 +19,11 @@ if [ ! -d $TP/rtl-sdr-blog ]; then
     git clone https://github.com/rtlsdrblog/rtl-sdr-blog $TP/rtl-sdr-blog
     git -c safe.directory='*' -C $TP/rtl-sdr-blog checkout -q $RTLSDR_COMMIT
 fi
+# IF gain (VGA) control for the R820T/R828D, which the driver does not offer
+PATCH="$(pwd)/rtlsdr/r82xx-if-gain.patch"
+if ! git -c safe.directory='*' -C $TP/rtl-sdr-blog apply --reverse --check "$PATCH" 2>/dev/null; then
+    git -c safe.directory='*' -C $TP/rtl-sdr-blog apply "$PATCH"
+fi
 if [ ! -f $TP/libusb/MinGW32/static/libusb-1.0.a ]; then
     mkdir -p $TP/libusb
     curl -sSL -o $TP/libusb.7z https://github.com/libusb/libusb/releases/download/v$LIBUSB_VER/libusb-$LIBUSB_VER.7z

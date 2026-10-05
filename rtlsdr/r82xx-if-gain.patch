@@ -1,0 +1,118 @@
+diff --git a/include/rtl-sdr.h b/include/rtl-sdr.h
+index d88e762..a6175d7 100644
+--- a/include/rtl-sdr.h
++++ b/include/rtl-sdr.h
+@@ -259,6 +259,17 @@ RTLSDR_API int rtlsdr_set_tuner_if_gain(rtlsdr_dev_t *dev, int stage, int gain);
+  */
+ RTLSDR_API int rtlsdr_set_tuner_gain_mode(rtlsdr_dev_t *dev, int manual);
+ 
++/*!
++ * Set the IF gain (VGA) of an R820T/R828D tuner.
++ *
++ * \param dev the device handle given by rtlsdr_open()
++ * \param mode -1 = driver default (16.3 dB with manual gain, 26.5 dB with
++ *        tuner AGC), 0..15 = manual VGA step (-4.7 to 40.8 dB),
++ *        16 = IF AGC (the RTL2832's IF AGC loop drives the VGA)
++ * \return 0 on success, -2 if the tuner is not an R820T/R828D
++ */
++RTLSDR_API int rtlsdr_set_tuner_if_vga(rtlsdr_dev_t *dev, int mode);
++
+ /*!
+  * Set the sample rate for the device, also selects the baseband filters
+  * according to the requested sample rate for tuners where this is possible.
+diff --git a/include/tuner_r82xx.h b/include/tuner_r82xx.h
+index 99d5682..bc55d80 100644
+--- a/include/tuner_r82xx.h
++++ b/include/tuner_r82xx.h
+@@ -92,6 +92,11 @@ struct r82xx_priv {
+ 
+ 	uint32_t			bw;	/* in MHz */
+ 
++	/* IF gain (VGA, register 0x0c) chosen by the application; when
++	   vga_override is 0 the driver picks it as before */
++	int				vga_override;
++	uint8_t				vga_reg;
++
+ 	void *rtl_dev;
+ };
+ 
+@@ -119,5 +124,6 @@ int r82xx_set_gain(struct r82xx_priv *priv, int set_manual_gain, int gain);
+ int r82xx_set_bandwidth(struct r82xx_priv *priv, int bandwidth,  uint32_t rate);
+ int r82xx_toggle_test(struct r82xx_priv *priv, int toggle);
+ int r82xx_set_vga_gain(struct r82xx_priv *priv);
++int r82xx_set_vga_mode(struct r82xx_priv *priv, int mode);
+ 
+ #endif
+diff --git a/src/librtlsdr.c b/src/librtlsdr.c
+index 82bab6d..96eea76 100644
+--- a/src/librtlsdr.c
++++ b/src/librtlsdr.c
+@@ -1110,6 +1110,23 @@ int rtlsdr_set_tuner_gain_mode(rtlsdr_dev_t *dev, int mode)
+ 	return r;
+ }
+ 
++int rtlsdr_set_tuner_if_vga(rtlsdr_dev_t *dev, int mode)
++{
++	int r;
++
++	if (!dev || !dev->tuner)
++		return -1;
++	if (dev->tuner_type != RTLSDR_TUNER_R820T && dev->tuner_type != RTLSDR_TUNER_R828D)
++		return -2;
++
++	rtlsdr_set_i2c_repeater(dev, 1);
++	r = r82xx_set_vga_mode(&dev->r82xx_p, mode);
++	/* RF and IF AGC loop of the RTL2832: on only for the IF AGC */
++	r |= rtlsdr_demod_write_reg(dev, 1, 0x04, mode >= 16 ? 0x80 : 0x00, 1);
++
++	return r;
++}
++
+ int rtlsdr_set_sample_rate(rtlsdr_dev_t *dev, uint32_t samp_rate)
+ {
+ 	int r = 0;
+diff --git a/src/tuner_r82xx.c b/src/tuner_r82xx.c
+index 979191d..4530344 100644
+--- a/src/tuner_r82xx.c
++++ b/src/tuner_r82xx.c
+@@ -1022,8 +1022,8 @@ int r82xx_set_gain(struct r82xx_priv *priv, int set_manual_gain, int gain)
+ 		if (rc < 0)
+ 			return rc;
+ 
+-		/* set fixed VGA gain for now (26.5 dB) */
+-		rc = r82xx_write_reg_mask(priv, 0x0c, 0x0b, 0x9f);
++		/* set fixed VGA gain for now (26.5 dB), unless the application chose one */
++		rc = r82xx_write_reg_mask(priv, 0x0c, priv->vga_override ? priv->vga_reg : 0x0b, 0x9f);
+ 
+ 		if (rc < 0)
+ 			return rc;
+@@ -1049,11 +1049,29 @@ int r82xx_set_vga_gain(struct r82xx_priv *priv) {
+ 		rc = r82xx_write_reg_mask(priv, 0x0c, 0x08, 0x9f); // 16.3 dB
+ 	}*/
+ 
++	if (priv->vga_override)
++		return r82xx_write_reg_mask(priv, 0x0c, priv->vga_reg, 0x9f);
++
+ 	rc = r82xx_write_reg_mask(priv, 0x0c, 0x08, 0x9f); // 16.3 dB
+ 
+ 	return rc;
+ }
+ 
++/* IF gain (VGA). Register 0x0c: bit 4 = 1 lets the RTL2832's IF AGC drive
++ * the VGA through the vagc pin, bits 3:0 = manual VGA code.
++ * mode: -1 = driver default, 0..15 = manual code (-4.7 to 40.8 dB),
++ *       16 = IF AGC */
++int r82xx_set_vga_mode(struct r82xx_priv *priv, int mode)
++{
++	if (mode < 0) {
++		priv->vga_override = 0;
++	} else {
++		priv->vga_override = 1;
++		priv->vga_reg = mode >= 16 ? 0x10 : (uint8_t)mode;
++	}
++	return r82xx_set_vga_gain(priv);
++}
++
+ /* Bandwidth contribution by low-pass filter. */
+ static const int r82xx_if_low_pass_bw_table[] = {
+ 	1700000, 1600000, 1550000, 1450000, 1200000, 900000, 700000, 550000, 450000, 350000

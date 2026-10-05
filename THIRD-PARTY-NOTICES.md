@@ -9,6 +9,8 @@ The files in `bin/` are built by `build.sh` and contain the following third-part
 | rtl-sdr, RTL-SDR Blog fork (commit `aed0ea1`) | `RtlSdrIntf.dll`, `RtlSdrIntfConfig.exe` | GPL-2.0-or-later | https://github.com/rtlsdrblog/rtl-sdr-blog |
 | winpthreads (MinGW-w64 runtime) | `AirspyHfIntf.dll`, `AirspyHfIntfConfig.exe` | MIT / BSD 3-Clause | https://www.mingw-w64.org |
 
+The RTL-SDR driver is modified: `build.sh` applies `rtlsdr/r82xx-if-gain.patch`, which adds control of the IF gain (VGA) of the R820T/R828D tuners (`rtlsdr_set_tuner_if_vga`). The patch is based on the librtlsdr fork at https://github.com/librtlsdr/librtlsdr, also GPL-2.0-or-later.
+
 Because the RTL-SDR driver is licensed under the GPL, `RtlSdrIntf.dll` and `RtlSdrIntfConfig.exe` as distributed here are covered by the GPL, version 2 or later. The complete source needed to rebuild every file is in this repository together with the sources that `build.sh` downloads.
 
 CW Skimmer, Skimmer Server and RTTY Skimmer Server are products of Afreet Software, Inc. and are not part of this project.

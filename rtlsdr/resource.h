@@ -19,6 +19,8 @@
 #define IDC_TBW       1018
 #define IDC_RATE      1019
 #define IDC_RATEINFO  1020
+#define IDC_IFAGC     1021
+#define IDC_IFGAIN    1022
 #define IDC_L_DEVICE  1101
 #define IDC_L_HFMODE  1102
 #define IDC_L_TGAIN   1103
@@ -30,6 +32,7 @@
 #define IDC_G_DSP     1109
 #define IDC_L_TBW     1110
 #define IDC_L_RATE    1111
+#define IDC_L_IFGAIN  1116
 #define IDC_G_LEVEL   1112
 #define IDC_METER_I   1113
 #define IDC_METER_Q   1114

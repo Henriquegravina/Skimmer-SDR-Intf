@@ -6,7 +6,7 @@
 1 RT_MANIFEST "RtlSdrIntfConfig.manifest"
 #endif
 
-IDD_MAIN DIALOGEX 0, 0, 250, 405
+IDD_MAIN DIALOGEX 0, 0, 250, 421
 STYLE DS_SETFONT | DS_MODALFRAME | DS_CENTER | WS_POPUP | WS_CAPTION | WS_SYSMENU | WS_MINIMIZEBOX
 CAPTION "RTL-SDR for Skimmer Server - Settings"
 FONT 9, "Segoe UI"
@@ -17,7 +17,7 @@ BEGIN
     PUSHBUTTON      "Refresh", IDC_REFRESH, 193, 17, 42, 14
     LTEXT           "", IDC_NOTE, 15, 36, 222, 17
 
-    GROUPBOX        "Front end", IDC_G_FRONT, 7, 64, 236, 149
+    GROUPBOX        "Front end", IDC_G_FRONT, 7, 64, 236, 165
     LTEXT           "HF reception:", IDC_L_HFMODE, 15, 79, 62, 9
     COMBOBOX        IDC_HFMODE, 80, 77, 155, 60, CBS_DROPDOWNLIST | WS_TABSTOP
     LTEXT           "Sampling rate:", IDC_L_RATE, 15, 95, 62, 9
@@ -26,31 +26,34 @@ BEGIN
     AUTOCHECKBOX    "Tuner AGC", IDC_TAGC, 15, 131, 100, 10
     LTEXT           "Tuner gain:", IDC_L_TGAIN, 130, 132, 50, 9
     COMBOBOX        IDC_TGAIN, 183, 130, 52, 160, CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
-    LTEXT           "Tuner filter width:", IDC_L_TBW, 15, 148, 112, 9
-    COMBOBOX        IDC_TBW, 130, 146, 105, 140, CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
-    AUTOCHECKBOX    "RTL2832 digital AGC", IDC_RAGC, 15, 163, 220, 10
-    AUTOCHECKBOX    "Bias-T", IDC_BIAS, 15, 178, 220, 10
-    LTEXT           "Frequency correction (ppm):", IDC_L_PPM, 15, 196, 112, 9
-    EDITTEXT        IDC_PPM, 130, 194, 40, 13, ES_AUTOHSCROLL
+    AUTOCHECKBOX    "IF AGC", IDC_IFAGC, 15, 147, 100, 10
+    LTEXT           "IF gain:", IDC_L_IFGAIN, 130, 148, 50, 9
+    COMBOBOX        IDC_IFGAIN, 183, 146, 52, 160, CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
+    LTEXT           "Tuner filter width:", IDC_L_TBW, 15, 164, 112, 9
+    COMBOBOX        IDC_TBW, 130, 162, 105, 140, CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
+    AUTOCHECKBOX    "RTL2832 digital AGC", IDC_RAGC, 15, 179, 220, 10
+    AUTOCHECKBOX    "Bias-T", IDC_BIAS, 15, 194, 220, 10
+    LTEXT           "Frequency correction (ppm):", IDC_L_PPM, 15, 212, 112, 9
+    EDITTEXT        IDC_PPM, 130, 210, 40, 13, ES_AUTOHSCROLL
 
-    GROUPBOX        "Signal level (peak)", IDC_G_LEVEL, 7, 217, 236, 54
-    CONTROL         "", IDC_METER_I, "Static", SS_OWNERDRAW, 15, 230, 222, 10
-    CONTROL         "", IDC_METER_Q, "Static", SS_OWNERDRAW, 15, 243, 222, 10
-    LTEXT           "", IDC_LEVELNOTE, 15, 257, 222, 9
+    GROUPBOX        "Signal level (peak)", IDC_G_LEVEL, 7, 233, 236, 54
+    CONTROL         "", IDC_METER_I, "Static", SS_OWNERDRAW, 15, 246, 222, 10
+    CONTROL         "", IDC_METER_Q, "Static", SS_OWNERDRAW, 15, 259, 222, 10
+    LTEXT           "", IDC_LEVELNOTE, 15, 273, 222, 9
 
-    GROUPBOX        "Output to the Skimmer", IDC_G_DSP, 7, 275, 236, 64
-    LTEXT           "Digital gain (dB):", IDC_L_GAIN, 15, 290, 62, 9
-    EDITTEXT        IDC_GAIN, 80, 288, 40, 13, ES_AUTOHSCROLL
+    GROUPBOX        "Output to the Skimmer", IDC_G_DSP, 7, 291, 236, 64
+    LTEXT           "Digital gain (dB):", IDC_L_GAIN, 15, 306, 62, 9
+    EDITTEXT        IDC_GAIN, 80, 304, 40, 13, ES_AUTOHSCROLL
     CONTROL         "", IDC_GAINSPIN, UPDOWN_CLASS, UDS_SETBUDDYINT | UDS_ALIGNRIGHT | UDS_AUTOBUDDY | UDS_ARROWKEYS | UDS_NOTHOUSANDS, 0, 51, 10, 13
-    LTEXT           "Freq. offset (Hz):", IDC_L_OFFSET, 130, 290, 62, 9
-    EDITTEXT        IDC_OFFSET, 193, 288, 42, 13, ES_AUTOHSCROLL
-    AUTOCHECKBOX    "Invert Q", IDC_INVQ, 15, 307, 220, 10
-    AUTOCHECKBOX    "Write log file", IDC_LOG, 15, 322, 220, 10
+    LTEXT           "Freq. offset (Hz):", IDC_L_OFFSET, 130, 306, 62, 9
+    EDITTEXT        IDC_OFFSET, 193, 304, 42, 13, ES_AUTOHSCROLL
+    AUTOCHECKBOX    "Invert Q", IDC_INVQ, 15, 323, 220, 10
+    AUTOCHECKBOX    "Write log file", IDC_LOG, 15, 338, 220, 10
 
-    AUTOCHECKBOX    "Show this window when the radio starts", IDC_SHOW, 7, 344, 236, 10
-    LTEXT           "", IDC_INI, 7, 357, 236, 9, SS_PATHELLIPSIS
-    LTEXT           "Plugin by: PY3OW and PY2PLL+PY3CRX", IDC_STATIC, 7, 368, 236, 9
-    DEFPUSHBUTTON   "OK", IDOK, 85, 384, 50, 14
-    PUSHBUTTON      "Cancel", IDCANCEL, 139, 384, 50, 14
-    PUSHBUTTON      "Apply", IDC_APPLY, 193, 384, 50, 14
+    AUTOCHECKBOX    "Show this window when the radio starts", IDC_SHOW, 7, 360, 236, 10
+    LTEXT           "", IDC_INI, 7, 373, 236, 9, SS_PATHELLIPSIS
+    LTEXT           "Plugin by: PY3OW and PY2PLL+PY3CRX", IDC_STATIC, 7, 384, 236, 9
+    DEFPUSHBUTTON   "OK", IDOK, 85, 400, 50, 14
+    PUSHBUTTON      "Cancel", IDCANCEL, 139, 400, 50, 14
+    PUSHBUTTON      "Apply", IDC_APPLY, 193, 400, 50, 14
 END

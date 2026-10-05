@@ -4,6 +4,10 @@
 
 #define RTL_MAX_RADIOS 16
 
+/* IF gain (VGA) steps of the R820T/R828D in tenths of a dB, for codes 0..15 */
+#define RTL_IF_GAINS { -47, -21, 5, 35, 77, 112, 136, 149, 163, 195, 231, 265, 300, 337, 372, 408 }
+#define RTL_N_IF_GAINS 16
+
 typedef struct {
     int  index;                 /* librtlsdr device index */
     char name[128];             /* "manufacturer product" */

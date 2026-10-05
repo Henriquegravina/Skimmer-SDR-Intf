@@ -26,6 +26,7 @@ int rtlsdr_set_sample_rate(rtlsdr_dev_t *d, uint32_t r) { (void)d; rate = r; not
 uint32_t rtlsdr_get_sample_rate(rtlsdr_dev_t *d) { (void)d; return rate; }
 int rtlsdr_set_tuner_bandwidth(rtlsdr_dev_t *d, uint32_t bw) { (void)d; note("tuner_bw", (int)bw); return 0; }
 int rtlsdr_set_agc_mode(rtlsdr_dev_t *d, int on) { (void)d; note("rtl_agc", on); return 0; }
+int rtlsdr_set_tuner_if_vga(rtlsdr_dev_t *d, int m) { (void)d; note("if_vga", m); return 0; }
 int rtlsdr_set_direct_sampling(rtlsdr_dev_t *d, int on) { (void)d; note("direct_sampling", on); return 0; }
 int rtlsdr_set_bias_tee(rtlsdr_dev_t *d, int on) { (void)d; note("bias_tee", on); return 0; }
 int rtlsdr_reset_buffer(rtlsdr_dev_t *d) { (void)d; return 0; }

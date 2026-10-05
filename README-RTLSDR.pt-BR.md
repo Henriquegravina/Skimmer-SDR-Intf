@@ -27,7 +27,7 @@ DLL de interface que permite usar um dongle **RTL-SDR**, incluindo os **RTL-SDR 
 | Dongle genérico com upconverter externo | Sintonizador | Ponha em `FreqOffsetHz` o oscilador do upconverter, por exemplo 125000000 |
 | Dongle genérico modificado para amostragem direta | — | Escolha "Amostragem direta, ramo I" ou "ramo Q", conforme a ligação feita |
 
-Na amostragem direta o sintonizador fica fora do caminho, então o ganho do sintonizador não tem efeito e o **AGC digital do RTL2832** é o único controle de ganho. Nesse modo também não há filtragem antes do conversor: emissoras fortes de radiodifusão podem sobrecarregá-lo, e um filtro passa-faixa para a banda em uso ajuda muito.
+Na amostragem direta o sintonizador fica fora do caminho, então o ganho do sintonizador e o ganho de FI não têm efeito e não há ganho analógico para ajustar; o **AGC digital do RTL2832** só multiplica o resultado depois do conversor. Nesse modo também não há filtragem antes do conversor: emissoras fortes de radiodifusão podem sobrecarregá-lo, e um filtro passa-faixa para a banda em uso ajuda muito.
 
 ## Largura de banda
 
@@ -55,13 +55,29 @@ Uma nova taxa de amostragem vale na próxima vez que o Skimmer iniciar o rádio.
 
 Marcar **Bias-T** coloca alimentação DC (cerca de 4,5 V no V3 e no V4) no conector de antena, para alimentar uma antena ativa ou um pré-amplificador. Vem desligado. Não ligue com uma antena que seja curto-circuito em DC. A DLL desliga o Bias-T de novo quando o Skimmer para o rádio.
 
+## Estágios de ganho
+
+Com o sintonizador em uso (sempre no V4 e acima de 24 MHz no V3), o sinal passa por três estágios de ganho antes de chegar ao Skimmer:
+
+| Estágio | Onde | Na janela | Chaves |
+|---|---|---|---|
+| Ganho de RF (LNA e mixer) | sintonizador, antes do filtro de FI | **AGC do sintonizador** e **Ganho** | `TunerAgc`, `TunerGain` |
+| Ganho de FI (VGA) | sintonizador, entre o filtro de FI e o conversor de 8 bits | **AGC de FI** e **Ganho FI** | `IfAgc`, `IfGain` |
+| AGC digital | RTL2832, depois do conversor | **AGC digital do RTL2832** | `RtlAgc` |
+
+O ganho de RF define a sensibilidade. O ganho de FI define o quanto o conversor é excitado, então é ele que se reduz quando os [medidores de nível](#medidores-de-nível) mostram CLIP com o ganho de RF onde você quer. O AGC digital só multiplica o resultado de 8 bits: não evita que o conversor ceife e pode levar a saída ao CLIP, então o melhor é deixá-lo desligado. Ele funciona igual com o sintonizador e na amostragem direta.
+
+O **Ganho FI** tem 16 passos, de -4,7 a 40,8 dB. **Padrão** deixa a escolha com o driver, como antes: 16,3 dB com ganho manual do sintonizador e 26,5 dB com o AGC do sintonizador, então ligar ou desligar o AGC do sintonizador também muda o ganho de FI em 10 dB. **AGC de FI** entrega o ganho de FI à malha de AGC de FI do RTL2832, como o "IF AGC" do ExtIO_RTL. Os autores dos drivers do RTL-SDR observam que essa malha pode causar bombeamento e intermodulação e que um ganho de FI fixo costuma funcionar melhor, então compare com um valor manual nos medidores e no waterfall.
+
+O driver da RTL-SDR Blog não tem controle de ganho de FI para os sintonizadores R820T e R828D do V3 e do V4. O `build.sh` aplica nele um pequeno patch, `rtlsdr/r82xx-if-gain.patch`, baseado no fork da librtlsdr usado pelo ExtIO_RTL.
+
 ## Medidores de nível
 
 Com o Skimmer recebendo, duas barras na janela de configuração mostram o nível de pico das amostras **I** e **Q** direto da saída do conversor de 8 bits do dongle, em dBFS. 0 dBFS indica que o conversor chegou ao código 0 ou 255, ou seja, o sinal está ceifando, e o **CLIP** acende em vermelho por 3 segundos. A barra fica verde até -12 dBFS, amarela até -3 dBFS e vermelha acima disso; a marca branca e o número à direita são o maior pico dos últimos 2 segundos.
 
 A medida é feita antes de qualquer filtragem e antes do `GainDb`, então mostra o que o conversor enxerga, incluindo sinais fortes fora da banda do Skimmer. Mantenha os picos abaixo de cerca de -3 dBFS. Se acender CLIP:
 
-- com o sintonizador em uso, reduza o **ganho do sintonizador** (ou desligue o AGC do sintonizador e escolha um valor menor) e experimente o filtro do sintonizador mais estreito;
+- com o sintonizador em uso, reduza primeiro o **ganho de FI**, depois o **ganho do sintonizador** (ou desligue o AGC do sintonizador e escolha um valor menor), e experimente o filtro do sintonizador mais estreito;
 - na amostragem direta, desligue o **AGC digital do RTL2832** e, se ainda ceifar, coloque um atenuador ou um filtro passa-faixa antes do dongle.
 
 Na amostragem direta só um ramo leva o sinal, então uma das barras fica perto do mínimo. Isso é esperado.
@@ -85,7 +101,9 @@ O `RtlSdrIntfConfig.exe` abre a mesma janela sem o Skimmer.
 | `TunerAgc` | 1 | AGC do sintonizador. Desligado, vale o `TunerGain` |
 | `TunerGain` | 297 | Ganho do sintonizador em décimos de dB (0 a 496); é usado o valor suportado mais próximo |
 | `TunerBandwidthHz` | 0 | Largura do filtro analógico do sintonizador: 0 = automática (da largura da taxa de amostragem), ou 350000 a 1550000 |
-| `RtlAgc` | 0 | AGC digital do RTL2832 |
+| `IfAgc` | 0 | 1 entrega o ganho de FI do sintonizador à malha de AGC de FI do RTL2832; o `IfGain` é ignorado |
+| `IfGain` | vazio | Ganho de FI em décimos de dB (-47 a 408); é usado o passo mais próximo. Vazio = padrão do driver (16,3 dB com ganho manual do sintonizador, 26,5 dB com o AGC do sintonizador) |
+| `RtlAgc` | 0 | AGC digital do RTL2832, aplicado depois do conversor |
 | `BiasTee` | 0 | 1 liga o Bias-T |
 | `Ppm` | 0 | Correção de frequência em ppm |
 | `GainDb` | 0 | Ganho digital em dB nas amostras entregues ao Skimmer |

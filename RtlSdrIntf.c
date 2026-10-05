@@ -202,6 +202,7 @@ static int    g_freq = 14050000;
 static char   g_dir[MAX_PATH], g_ini[MAX_PATH], g_logfile[MAX_PATH];
 static int    cfg_rate, cfg_index, cfg_hfmode, cfg_tuner_agc, cfg_tuner_gain, cfg_tuner_bw, cfg_rtl_agc, cfg_bias;
 static int    cfg_ppm, cfg_invq, cfg_offset, cfg_show, cfg_log;
+static int    cfg_if_vga;                    /* -1 = driver default, 0..15 = VGA step, 16 = IF AGC */
 static double cfg_gain_db;
 static char   cfg_serial[64];
 static char   g_name[64] = "RTL-SDR";
@@ -251,6 +252,19 @@ static void load_config(void)
     cfg_gain_db = atof(tmp);
     GetPrivateProfileStringA("RtlSdr", "Serial", "", cfg_serial, sizeof cfg_serial, g_ini);
     if (cfg_hfmode < 0 || cfg_hfmode > 2) cfg_hfmode = 0;
+
+    /* IF gain: IfAgc=1 hands the VGA to the RTL2832's IF AGC; otherwise
+       IfGain in tenths of a dB picks the nearest step, empty = driver default */
+    GetPrivateProfileStringA("RtlSdr", "IfGain", "", tmp, sizeof tmp, g_ini);
+    cfg_if_vga = -1;
+    if (GetPrivateProfileIntA("RtlSdr", "IfAgc", 0, g_ini)) {
+        cfg_if_vga = 16;
+    } else if (tmp[0]) {
+        static const int steps[RTL_N_IF_GAINS] = RTL_IF_GAINS;
+        int i, g = atoi(tmp);
+        for (i = 1, cfg_if_vga = 0; i < RTL_N_IF_GAINS; i++)
+            if (abs(steps[i] - g) < abs(steps[cfg_if_vga] - g)) cfg_if_vga = i;
+    }
 }
 
 /* ------------------------------------------------------------------ */
@@ -372,6 +386,11 @@ static void apply_settings(rtlsdr_dev_t *dev)
        narrower one keeps strong signals outside the Skimmer's band away from
        the converter. It moves the IF, so the frequency is set again below. */
     rtlsdr_set_tuner_bandwidth(dev, cfg_tuner_bw > 0 ? (uint32_t)cfg_tuner_bw : 0);
+    /* IF gain (the tuner's VGA, between the mixer and the converter):
+       -1 = driver default, 0..15 = manual step, 16 = RTL2832 IF AGC.
+       Lowering it keeps the converter out of clipping without giving up
+       the RF gain that sets the sensitivity. */
+    rtlsdr_set_tuner_if_vga(dev, cfg_if_vga);
     rtlsdr_set_agc_mode(dev, cfg_rtl_agc ? 1 : 0);
     rtlsdr_set_bias_tee(dev, cfg_bias ? 1 : 0);
     rtlsdr_set_center_freq(dev, (uint32_t)(g_freq + cfg_offset));

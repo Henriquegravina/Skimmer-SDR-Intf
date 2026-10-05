@@ -45,8 +45,11 @@ static const int DEVICE_RATES[] = { 1152000, 1536000, 1920000, 2304000, 3072000 
 static const int TUNER_BWS[] = { 0, 350000, 450000, 550000, 700000, 900000, 1200000, 1550000 };
 #define N_BWS ((int)(sizeof TUNER_BWS / sizeof TUNER_BWS[0]))
 
+/* IF gain (VGA) of the tuner; entry 0 of the box is "default" (left to the driver) */
+static const int IF_GAINS[RTL_N_IF_GAINS] = RTL_IF_GAINS;
+
 enum { S_TITLE, S_G_RADIO, S_L_DEVICE, S_REFRESH, S_FIRST, S_NOTE, S_FOUND0, S_FOUND, S_ABSENT,
-       S_G_FRONT, S_L_HFMODE, S_HF_AUTO, S_HF_I, S_HF_Q, S_L_RATE, S_RATE_RISKY, S_RATEINFO, S_TAGC, S_L_TGAIN, S_L_TBW, S_BW_AUTO, S_RAGC, S_BIAS, S_L_PPM,
+       S_G_FRONT, S_L_HFMODE, S_HF_AUTO, S_HF_I, S_HF_Q, S_L_RATE, S_RATE_RISKY, S_RATEINFO, S_TAGC, S_L_TGAIN, S_IFAGC, S_L_IFGAIN, S_IF_DEFAULT, S_L_TBW, S_BW_AUTO, S_RAGC, S_BIAS, S_L_PPM,
        S_G_DSP, S_L_GAIN, S_L_OFFSET, S_INVQ, S_LOG, S_SHOW, S_CANCEL, S_APPLY,
        S_FILE, S_ERRWRITE, S_G_LEVEL, S_LVL_HINT, S_LVL_IDLE, S_COUNT };
 
@@ -72,10 +75,13 @@ static const wchar_t *STR[S_COUNT][2] = {
       L"Para o Skimmer em 192 / 96 / 48 kHz: decima\u00e7\u00e3o %d / %d / %d,\ncerca de %.1f / %.1f / %.1f bits (o conversor tem 8)." },
     { L"Tuner AGC", L"AGC do sintonizador" },
     { L"Tuner gain:", L"Ganho:" },
+    { L"IF AGC", L"AGC de FI" },
+    { L"IF gain:", L"Ganho FI:" },
+    { L"Default", L"Padr\u00e3o" },
     { L"Tuner filter width:", L"Largura do filtro do sintonizador:" },
     { L"Automatic (sampling rate)", L"Autom\u00e1tica (taxa de amostragem)" },
-    { L"RTL2832 digital AGC (the gain control in direct sampling)",
-      L"AGC digital do RTL2832 (o controle de ganho na amostragem direta)" },
+    { L"RTL2832 digital AGC (after the converter, does not stop CLIP)",
+      L"AGC digital do RTL2832 (depois do conversor; n\u00e3o evita o CLIP)" },
     { L"Bias-T: DC power on the antenna connector", L"Bias-T: alimenta\u00e7\u00e3o DC no conector de antena" },
     { L"Frequency correction (ppm):", L"Corre\u00e7\u00e3o de frequ\u00eancia (ppm):" },
     { L"Output to the Skimmer", L"Sa\u00edda para o Skimmer" },
@@ -98,6 +104,7 @@ static const wchar_t *STR[S_COUNT][2] = {
 
 static void set_text(HWND d, int ctl, int sid) { SetDlgItemTextW(d, ctl, T(sid)); }
 static int clampi(int v, int lo, int hi) { return v < lo ? lo : v > hi ? hi : v; }
+
 static void update_meters(HWND d)
 {
     int live = meter_poll(g_meter, g_ctx->read_peaks, GetDlgItem(d, IDC_METER_I), GetDlgItem(d, IDC_METER_Q));
@@ -176,6 +183,9 @@ static void update_enables(HWND d)
     BOOL agc = IsDlgButtonChecked(d, IDC_TAGC) == BST_CHECKED;
     EnableWindow(GetDlgItem(d, IDC_TGAIN), !agc);
     EnableWindow(GetDlgItem(d, IDC_L_TGAIN), !agc);
+    agc = IsDlgButtonChecked(d, IDC_IFAGC) == BST_CHECKED;
+    EnableWindow(GetDlgItem(d, IDC_IFGAIN), !agc);
+    EnableWindow(GetDlgItem(d, IDC_L_IFGAIN), !agc);
 }
 
 static void load(HWND d)
@@ -198,6 +208,16 @@ static void load(HWND d)
     for (i = 1; i < N_GAINS; i++)
         if (abs(TUNER_GAINS[i] - g) < abs(TUNER_GAINS[best] - g)) best = i;
     SendDlgItemMessageW(d, IDC_TGAIN, CB_SETCURSEL, best, 0);
+    CheckDlgButton(d, IDC_IFAGC, ini_int("IfAgc", 0) ? BST_CHECKED : BST_UNCHECKED);
+    GetPrivateProfileStringA(SEC, "IfGain", "", s, sizeof s, g_ctx->ini);
+    best = 0;                                /* empty: driver default */
+    if (s[0]) {
+        g = atoi(s);
+        for (i = 1, best = 0; i < RTL_N_IF_GAINS; i++)
+            if (abs(IF_GAINS[i] - g) < abs(IF_GAINS[best] - g)) best = i;
+        best++;
+    }
+    SendDlgItemMessageW(d, IDC_IFGAIN, CB_SETCURSEL, best, 0);
     g = ini_int("TunerBandwidthHz", 0);
     for (i = 1, best = 0; i < N_BWS; i++)
         if (abs(TUNER_BWS[i] - g) < abs(TUNER_BWS[best] - g)) best = i;
@@ -235,7 +255,7 @@ static BOOL save(HWND d)
     char serial[64];
     wchar_t msg[600];
     BOOL ok = TRUE;
-    int index;
+    int index, i;
 
     current_choice(d, &index, serial, sizeof serial);
     ok &= put_int("DeviceIndex", index);
@@ -245,6 +265,10 @@ static BOOL save(HWND d)
     ok &= put_int("TunerAgc", checked(d, IDC_TAGC));
     ok &= put_int("TunerGain", TUNER_GAINS[clampi((int)SendDlgItemMessageW(d, IDC_TGAIN, CB_GETCURSEL, 0, 0), 0, N_GAINS - 1)]);
     ok &= put_int("TunerBandwidthHz", TUNER_BWS[clampi((int)SendDlgItemMessageW(d, IDC_TBW, CB_GETCURSEL, 0, 0), 0, N_BWS - 1)]);
+    ok &= put_int("IfAgc", checked(d, IDC_IFAGC));
+    i = (int)SendDlgItemMessageW(d, IDC_IFGAIN, CB_GETCURSEL, 0, 0);
+    if (i >= 1 && i <= RTL_N_IF_GAINS) ok &= put_int("IfGain", IF_GAINS[i - 1]);
+    else ok &= put("IfGain", "");
     ok &= put_int("RtlAgc", checked(d, IDC_RAGC));
     ok &= put_int("BiasTee", checked(d, IDC_BIAS));
     ok &= put_int("Ppm", clampi((int)GetDlgItemInt(d, IDC_PPM, NULL, TRUE), -1000, 1000));
@@ -276,6 +300,7 @@ static INT_PTR CALLBACK dlg_proc(HWND d, UINT m, WPARAM wp, LPARAM lp)
         set_text(d, IDC_REFRESH, S_REFRESH);   set_text(d, IDC_G_FRONT, S_G_FRONT);
         set_text(d, IDC_L_HFMODE, S_L_HFMODE); set_text(d, IDC_TAGC, S_TAGC);
         set_text(d, IDC_L_TGAIN, S_L_TGAIN);   set_text(d, IDC_RAGC, S_RAGC);
+        set_text(d, IDC_IFAGC, S_IFAGC);       set_text(d, IDC_L_IFGAIN, S_L_IFGAIN);
         set_text(d, IDC_L_TBW, S_L_TBW);       set_text(d, IDC_L_RATE, S_L_RATE);
         set_text(d, IDC_BIAS, S_BIAS);         set_text(d, IDC_L_PPM, S_L_PPM);
         set_text(d, IDC_G_DSP, S_G_DSP);       set_text(d, IDC_L_GAIN, S_L_GAIN);
@@ -297,6 +322,11 @@ static INT_PTR CALLBACK dlg_proc(HWND d, UINT m, WPARAM wp, LPARAM lp)
         for (i = 0; i < N_GAINS; i++) {
             swprintf(buf, 32, L"%d.%d dB", TUNER_GAINS[i] / 10, TUNER_GAINS[i] % 10);
             SendDlgItemMessageW(d, IDC_TGAIN, CB_ADDSTRING, 0, (LPARAM)buf);
+        }
+        SendDlgItemMessageW(d, IDC_IFGAIN, CB_ADDSTRING, 0, (LPARAM)T(S_IF_DEFAULT));
+        for (i = 0; i < RTL_N_IF_GAINS; i++) {
+            swprintf(buf, 32, L"%.1f dB", IF_GAINS[i] / 10.0);
+            SendDlgItemMessageW(d, IDC_IFGAIN, CB_ADDSTRING, 0, (LPARAM)buf);
         }
         SendDlgItemMessageW(d, IDC_TBW, CB_ADDSTRING, 0, (LPARAM)T(S_BW_AUTO));
         for (i = 1; i < N_BWS; i++) {
@@ -324,7 +354,8 @@ static INT_PTR CALLBACK dlg_proc(HWND d, UINT m, WPARAM wp, LPARAM lp)
 
     case WM_COMMAND:
         switch (LOWORD(wp)) {
-        case IDC_TAGC:    update_enables(d); return TRUE;
+        case IDC_TAGC:
+        case IDC_IFAGC:   update_enables(d); return TRUE;
         case IDC_RATE:    if (HIWORD(wp) == CBN_SELCHANGE) update_rate_info(d); return TRUE;
         case IDC_REFRESH:
             current_choice(d, &index, serial, sizeof serial);
